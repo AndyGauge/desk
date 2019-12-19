@@ -1,0 +1,40 @@
+<p id="notice"><%= notice %></p>
+
+<%= react_component 'Company', id: @customer.id, name: @customer.company %>
+<p>
+  <strong>Company:</strong>
+  <%= @customer.company %>
+</p>
+
+<p>
+  <strong>Contact:</strong>
+  <%= @customer.contact %>
+</p>
+
+<p>
+  <strong>Phone:</strong>
+  <%= @customer.phone %>
+</p>
+
+<p>
+  <strong>Address:</strong>
+  <%= @customer.address %>
+</p>
+
+<p>
+  <strong>City:</strong>
+  <%= @customer.city %>
+</p>
+
+<p>
+  <strong>State:</strong>
+  <%= @customer.state %>
+</p>
+
+<p>
+  <strong>Cdeskid:</strong>
+  <%= @customer.cdeskid %>
+</p>
+
+<%= link_to 'Edit', edit_customer_path(@customer) %> |
+<%= link_to 'Back', customers_path %>
