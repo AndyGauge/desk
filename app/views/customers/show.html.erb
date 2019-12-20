@@ -1,6 +1,6 @@
 <p id="notice"><%= notice %></p>
 
-<%= react_component 'Company', id: @customer.id, name: @customer.company %>
+<%= react_component 'Company', {id: @customer.id, name: @customer.company}, {prerender:true} %>
 <p>
   <strong>Company:</strong>
   <%= @customer.company %>
