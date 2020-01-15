@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   resources :customers do
     member do
-      get :contacts
+      get :contacts, :connections
     end
   end
   devise_for :users

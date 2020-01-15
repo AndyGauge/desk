@@ -1,5 +1,5 @@
 class CustomersController < ApplicationController
-  before_action :set_customer, only: [:show, :edit, :update, :destroy, :contacts]
+  before_action :set_customer, only: [:show, :edit, :update, :destroy, :contacts, :connections]
 
   # GET /customers
   # GET /customers.json
@@ -10,6 +10,7 @@ class CustomersController < ApplicationController
   # GET /customers/1
   # GET /customers/1.json
   def show
+    @customer_as_json = @customer.as_json
   end
 
   # GET /customers/new
@@ -63,6 +64,10 @@ class CustomersController < ApplicationController
 
   def contacts
     render json: FetchContactsService.new.by_customer(@customer.cdeskid)
+  end
+
+  def connections
+    render json: FetchConnectionsService.new.by_customer(@customer.cdeskid)
   end
 
   private
