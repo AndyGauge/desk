@@ -2,7 +2,7 @@ class FetchEventsService < FetchFromCdeskService
  def by_incident(incident_id)
 	 incident_id = incident_id.to_i # Sanitize the input
  	 c_desk_client = TinyTds::Client.new @@c_desk_sql
-	 events = c_desk_client.execute %Q(SELECT [ID]
+	 events = c_desk_client.execute %Q(SELECT [Id]
       ,CONVERT(varchar, [Call Time], 23) AS CallTime
       ,[Action]
       ,[Notes]
