@@ -5,9 +5,7 @@ import Card from 'react-bootstrap/Card'
 import Col from 'react-bootstrap/Col'
 import Modal from 'react-bootstrap/Modal'
 import Row from 'react-bootstrap/Row'
-
 import PropTypes from "prop-types"
-
 class Company extends Component {
     constructor(props) {
         super(props);
@@ -23,7 +21,6 @@ class Company extends Component {
             modalIncident: '',
         };
     }
-
     componentDidMount() {
         this.fetchController = new AbortController();
         const signal = this.fetchController.signal;
@@ -49,18 +46,13 @@ class Company extends Component {
                     throw error;
                 });
     }
-
     componentWillUnmount() {
         this.fetchController.abort();
     }
-
-
     render () {
-
     return (
       <React.Fragment>
           <h1>{this.props.company}</h1>
-
           <Accordion>
               <Card className="card-collapse">
                   <Card.Header>
@@ -144,7 +136,6 @@ class Company extends Component {
                   </Accordion.Collapse>
               </Card>
           </Accordion>
-
           <Modal
               show={this.state.modalOpen}
               size="lg"
@@ -199,15 +190,18 @@ class Company extends Component {
                   <Button onClick={() => this.setState({modalOpen: false})}>Close</Button>
               </Modal.Footer>
           </Modal>
-
       </React.Fragment>
     );
   }
-
     render_incident = (incident) => {
-        fetch('http://localhost:3000/incidents/' + incident.Id + '/events')
+        const signal = this.fetchController.signal;
+        fetch('http://localhost:3000/incidents/' + incident.Id + '/events', {signal})
             .then(   response => response.json())
             .then(calls => this.setState({calls}))
+            .catch(error => {
+                if (error.name === 'AbortError') return;
+                throw error;
+            });
     }
 }
 Company.propTypes = {
