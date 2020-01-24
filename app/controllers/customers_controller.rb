@@ -1,5 +1,5 @@
 class CustomersController < ApplicationController
-  before_action :set_customer, only: [:show, :edit, :update, :destroy, :contacts, :connections]
+  before_action :set_customer, only: [:show, :edit, :update, :destroy, :contacts, :connections, :incidents]
 
   # GET /customers
   # GET /customers.json
@@ -68,6 +68,10 @@ class CustomersController < ApplicationController
 
   def connections
     render json: FetchConnectionsService.new.by_customer(@customer.cdeskid)
+  end
+
+  def incidents
+    render json: FetchIncidentsService.new.by_customer(@customer.cdeskid)
   end
 
   private
