@@ -5,7 +5,6 @@ import Card from 'react-bootstrap/Card'
 import Col from 'react-bootstrap/Col'
 import Modal from 'react-bootstrap/Modal'
 import Row from 'react-bootstrap/Row'
-
 import PropTypes from "prop-types"
 class Company extends Component {
     constructor(props) {
@@ -23,25 +22,37 @@ class Company extends Component {
         };
     }
     componentDidMount() {
-        fetch('http://localhost:3000/customers/' + this.props.id + '/contacts')
-            .then(   response => response.json())
-            .then(   contacts => this.setState({ contacts }));
-        fetch('http://localhost:3000/customers/' + this.props.id + '/connections')
-            .then(   response => response.json())
-            .then(connections => this.setState({ connections }));
-        fetch('http://localhost:3000/customers/' + this.props.id + '/incidents')
-            .then(   response => response.json())
-            .then(  incidents => this.setState({ incidents }));
+        this.fetchController = new AbortController();
+        const signal = this.fetchController.signal;
+            fetch('http://localhost:3000/customers/' + this.props.id + '/contacts', {signal})
+                .then(   response => response.json())
+                .then(   contacts => this.setState({ contacts }))
+                .catch(error => {
+                    if (error.name === 'AbortError') return;
+                    throw error;
+                });
+            fetch('http://localhost:3000/customers/' + this.props.id + '/connections', {signal})
+                .then(   response => response.json())
+                .then(connections => this.setState({ connections }))
+                .catch(error => {
+                    if (error.name === 'AbortError') return;
+                    throw error;
+                });
+            fetch('http://localhost:3000/customers/' + this.props.id + '/incidents', {signal})
+                .then(   response => response.json())
+                .then(  incidents => this.setState({ incidents }))
+                .catch(error => {
+                    if (error.name === 'AbortError') return;
+                    throw error;
+                });
     }
-
-
-
-  render () {
-
+    componentWillUnmount() {
+        this.fetchController.abort();
+    }
+    render () {
     return (
       <React.Fragment>
           <h1>{this.props.company}</h1>
-
           <Accordion>
               <Card className="card-collapse">
                   <Card.Header>
@@ -59,7 +70,7 @@ class Company extends Component {
                                   <div className="col-sm">E-mail</div>
                           </div>
                           {this.contacts = this.state.contacts.map((contact,key) =>
-                              <div key={contact.Id} className="row contact-record">
+                              <div key={"contact" + contact.Id} className="row contact-record">
                                   <div className="col-sm">{contact.ContactName}</div>
                                   <div className="col-sm">{contact.OfficePhone}</div>
                                   <div className="col-sm">{contact.OfficeExtension}</div>
@@ -86,7 +97,7 @@ class Company extends Component {
                               <div className="col-sm">Description</div>
                           </div>
                           {this.connections = this.state.connections.map((connection,key) =>
-                              <div key={connection.ID} className="row contact-record">
+                              <div key={"connection" + connection.ID} className="row contact-record">
                                   <div className="col-sm">{connection.Type}</div>
                                   <div className="col-sm"><a href={connection.Address} target="_blank">{connection.Address}</a></div>
                                   <div className="col-sm">{connection.UserId}</div>
@@ -112,7 +123,7 @@ class Company extends Component {
                               <div className="col-sm">Status</div>
                           </div>
                           {this.connections = this.state.incidents.map((incident,key) =>
-                              <div key={incident.ID} className="row contact-record">
+                              <div key={"incident" + incident.Id} className="row contact-record">
                                   <div className="col-sm">{incident.OpenedDate}</div>
                                   <div className="col-sm">
                                       <Button variant="link" className="text-left" onClick={() => this.setState({ modalClass: 'Incident', modalContent: this.render_incident(incident), modalOpen: true })}>{incident.Title}</Button>
@@ -125,7 +136,6 @@ class Company extends Component {
                   </Accordion.Collapse>
               </Card>
           </Accordion>
-
           <Modal
               show={this.state.modalOpen}
               size="lg"
@@ -161,7 +171,7 @@ class Company extends Component {
                       <Col>{this.state.modalIncident.Solution}</Col>
                   </Row>
                   {this.state.calls.map((callEvent, key) =>
-                      <Row>
+                      <Row key={"event" + callEvent.Id}>
                           <div className="col-md-10 offset-md-1 incident-grid">
                               <Row>
                                   <Col>{callEvent.cdTech}</Col>
@@ -180,15 +190,18 @@ class Company extends Component {
                   <Button onClick={() => this.setState({modalOpen: false})}>Close</Button>
               </Modal.Footer>
           </Modal>
-
       </React.Fragment>
     );
   }
-
     render_incident = (incident) => {
-        fetch('http://localhost:3000/incidents/' + incident.Id + '/events')
+        const signal = this.fetchController.signal;
+        fetch('http://localhost:3000/incidents/' + incident.Id + '/events', {signal})
             .then(   response => response.json())
             .then(calls => this.setState({calls}))
+            .catch(error => {
+                if (error.name === 'AbortError') return;
+                throw error;
+            });
     }
 }
 Company.propTypes = {
