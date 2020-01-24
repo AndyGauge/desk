@@ -1,0 +1,25 @@
+
+<div class="row">
+  <div class="col-md-3 col-sm-6">
+    <span class="customer-title">Customers</span>
+
+  </div>
+  <div class="col-sm-6">
+    <input type="text" id="customer_search" />
+  </div>
+</div>
+<div class="row widget" id="customer_list">
+  <div class="col-sm-12 widget-content">
+
+  <%  @customers.each do |customer| %>
+      <div class="row tall-lg customer_row">
+        <div class="col-sm customer_name"><%= link_to customer.company, customer %></div>
+        <div class="col-sm d-none d-md-block"><%= customer.contact %></div>
+        <div class="col-sm d-none d-md-block"><%= customer.phone %></div>
+        <div class="col-sm d-none d-md-block"><%= customer.address %> <%= customer.city %> <%= customer.state %></div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<%= javascript_pack_tag 'customer_search' %>
