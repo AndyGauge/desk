@@ -20,6 +20,7 @@ class Company extends Component {
             modalContent: '',
             modalIncident: '',
         };
+        this.copyText = this.copyText.bind(this);
     }
     componentDidMount() {
         this.fetchController = new AbortController();
@@ -48,6 +49,16 @@ class Company extends Component {
     }
     componentWillUnmount() {
         this.fetchController.abort();
+    }
+    copyText = (e) => {
+        e.preventDefault()
+        const tempStor = document.createElement('textarea');
+        console.log(e.target)
+        tempStor.value = e.target.text
+        document.body.appendChild(tempStor);
+        tempStor.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempStor)
     }
     render () {
     return (
@@ -100,8 +111,8 @@ class Company extends Component {
                               <div key={"connection" + connection.ID} className="row contact-record">
                                   <div className="col-sm">{connection.Type}</div>
                                   <div className="col-sm"><a href={connection.Address} target="_blank">{connection.Address}</a></div>
-                                  <div className="col-sm">{connection.UserId}</div>
-                                  <div className="col-sm">{connection.Password}</div>
+                                  <div className="col-sm"><a href="#" onClick={this.copyText} className={'secret-link'}>{connection.UserId}</a></div>
+                                  <div className="col-sm"><a href="#" onClick={this.copyText} className={'secret-link'}>{connection.Password}</a></div>
                                   <div className="col-sm">{connection.Description}</div>
                               </div>
                           )}

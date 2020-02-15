@@ -1,40 +1,74 @@
 import React, { Component} from "react"
 import Col from 'react-bootstrap/Col'
 import Row from 'react-bootstrap/Row'
+import TimeInput from 'react-time-input';
 import PropTypes from "prop-types";
 class Hours extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {
+        this.state = {   };
 
-        };
+        this.handleWorkOrderChange = this.handleWorkOrderChange.bind(this);
+        this.handleStartChange = this.handleStartChange.bind(this);
+        this.handleEndChange = this.handleEndChange.bind(this);
+        this.handleActivityChange = this.handleActivityChange.bind(this);
+        this.handleStatusChange = this.handleStatusChange.bind(this);
+    }
+    handleWorkOrderChange = (e) => {
+        this.props.hoursChange({[this.props.detailid]: {workorder: e.target.value} })
+    }
+    handleStartChange = (e) => {
+        this.props.hoursChange({[this.props.detailid]: {start: e.target.value} })
+    }
+    handleEndChange = (e) => {
+        this.props.hoursChange({[this.props.detailid]: {end: e.target.value} })
+    }
+    handleActivityChange = (e) => {
+        this.props.hoursChange({[this.props.detailid]: {activity: e.target.value} })
+    }
+    handleStatusChange = (e) => {
+        this.props.hoursChange({[this.props.detailid]: {status: e.target.value} })
     }
     render() {
-        let start
-            if (this.props.start) {
-                const start_date = new Date(this.props.start)
-                start = start_date.getHours() + ':' + start_date.getMinutes().toString().padStart(2,'0')
-                if (this.props.editmode == 'full') {
-                    start = <input name={'start'}>start</input>
-                }
-            } else {
-                start = <input name={'start'} />
-            }
-        let end
-            if (this.props.end){
-                const end_date = new Date(this.props.end);
-                end = end_date.getHours() + ':' + end_date.getMinutes().toString().padStart(2,'0')
-                if (this.props.editmode == 'full') {
-                    end = <input name={'end'}>end</input>
-                }
-                } else {
-                end = <input name={'end'} />
-            }
+        let workorder;
+        if (this.props.editmode === 'full') {
+            workorder = <input  type={'text'} value={this.props.workorder} onChange={this.handleWorkOrderChange} name={'hour[workorder]'}/>
+        } else {
+            workorder = this.props.workorder;
+        }
+        let start = this.props.start;
+        if(this.props.editmode === 'full')  {
+            start = <TimeInput initTime={this.props.start} onTimeChange={this.handleStartChange} name={'hour[start]'}/>
+        }
 
-        let status
-        if (this.props.editmode == 'status' || this.props.editmode == 'full') {
-            status = ( <select name={'status'} value={this.props.status}>
+        let end = this.props.end;
+        if (this.props.editmode === 'full' || this.props.editmode === 'status') {
+            end = <TimeInput initTime={this.props.end} onTimeChange={this.handleEndChange} name={this.props.editmode == 'status' ? 'hour[' + this.props.detailid + '][end]' : 'hour[end]'}/>
+        }
+
+        let activity;
+        if (this.props.editmode === 'full') {
+            activity = ( <select name={'hour[activity]'} value={this.props.activity ? this.props.activity : ''} onChange={this.handleActivityChange}>
+                <option value={'Admin'}>Admin</option>
+                <option value={'Depot'}>Depot</option>
+                <option value={'On-site'}>On-site</option>
+                <option value={'Remote'}>Remote</option>
+                <option value={'Sick'}>Sick</option>
+                <option value={'xTraining'}>xTraining</option>
+                <option value={'Travel'}>Travel</option>
+                <option value={'Vacation'}>Vacation</option>
+                <option value={'OT On-Site'}>OT On-Site</option>
+                <option value={'OT Travel'}>OT Travel</option>
+                <option value={'OT Depot'}>OT Depot</option>
+            </select> )
+        } else {
+            activity = this.props.activity;
+        }
+
+        let status;
+        if (this.props.editmode === 'status' || this.props.editmode === 'full') {
+            status = ( <select name={this.props.editmode == 'status' ? 'hour[' + this.props.detailid + '][status]' : 'hour[status]'} value={this.props.status ? this.props.status : ''} onChange={this.handleStatusChange}>
                 <option value={'Complete'}>Complete</option>
                 <option value={'Loaner'}>Loaner</option>
                 <option value={'On Way'}>On Way</option>
@@ -45,15 +79,25 @@ class Hours extends Component {
         } else {
             status = this.props.status
         }
-        return(
+
+        let detailid;
+        if (this.props.editmode === 'full' && this.props.detailid) {
+            detailid = <input type={'hidden'} name={'hour[detailid]'} value={this.props.detailid} />
+        }
+        if (this.props.visible) {
+            return(
                 <Row className="hour-record">
-                    <Col sm>{this.props.workorder}</Col>
+                    <Col sm>{workorder}</Col>
                     <Col sm>{start}</Col>
                     <Col sm>{end}</Col>
-                    <Col sm>{this.props.activity}</Col>
-                    <Col sm>{status}</Col>
+                    <Col sm>{activity}</Col>
+                    <Col sm>{status}{detailid}</Col>
                 </Row>
-        )
+            )
+        } else {
+            return null
+        }
+
     }
 }
 Hours.propTypes = {

@@ -1,12 +1,26 @@
 class HoursController < ApplicationController
 
+  before_action :set_tech
+
   def index
-    @tech = current_user.tech
+
+  end
+
+  def create
+
+    render 'index'
+  end
+  def update
+    render 'index'
   end
   def dated
-    render json: cleanup_binary_data(TechDate.lookup(params[:tech], Date.parse(params[:date])).hours)
+    techdate = TechDate.lookup(params[:tech], Date.parse(params[:date]))
+    render json: { hours: cleanup_binary_data(techdate.hours), techheader: techdate.id }
   end
 
   private
+  def set_tech
+    @tech = current_user.tech
+  end
 
 end
