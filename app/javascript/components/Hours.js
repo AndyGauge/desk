@@ -1,4 +1,5 @@
 import React, { Component} from "react"
+import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col'
 import Row from 'react-bootstrap/Row'
 import TimeInput from 'react-time-input';
@@ -14,15 +15,16 @@ class Hours extends Component {
         this.handleEndChange = this.handleEndChange.bind(this);
         this.handleActivityChange = this.handleActivityChange.bind(this);
         this.handleStatusChange = this.handleStatusChange.bind(this);
+        this.handleEditChange = this.handleEditChange.bind(this);
     }
     handleWorkOrderChange = (e) => {
         this.props.hoursChange({[this.props.detailid]: {workorder: e.target.value} })
     }
     handleStartChange = (e) => {
-        this.props.hoursChange({[this.props.detailid]: {start: e.target.value} })
+        this.props.hoursChange({[this.props.detailid]: {start: e} })
     }
     handleEndChange = (e) => {
-        this.props.hoursChange({[this.props.detailid]: {end: e.target.value} })
+        this.props.hoursChange({[this.props.detailid]: {end: e} })
     }
     handleActivityChange = (e) => {
         this.props.hoursChange({[this.props.detailid]: {activity: e.target.value} })
@@ -30,26 +32,34 @@ class Hours extends Component {
     handleStatusChange = (e) => {
         this.props.hoursChange({[this.props.detailid]: {status: e.target.value} })
     }
+    handleEditChange = (e) => {
+        this.props.hoursChange({[this.props.detailid]: {editmode: 'full'}})
+    }
     render() {
         let workorder;
         if (this.props.editmode === 'full') {
-            workorder = <input  type={'text'} value={this.props.workorder} onChange={this.handleWorkOrderChange} name={'hour[workorder]'}/>
+            workorder = <input type={'text'} value={this.props.workorder} onChange={this.handleWorkOrderChange}
+                               name={'hour[workorder]'} className={'form-control'} placeholder={'workorder'}/>
         } else {
             workorder = this.props.workorder;
         }
         let start = this.props.start;
-        if(this.props.editmode === 'full')  {
-            start = <TimeInput initTime={this.props.start} onTimeChange={this.handleStartChange} name={'hour[start]'}/>
+        if (this.props.editmode === 'full') {
+            start = <TimeInput initTime={this.props.start} onTimeChange={this.handleStartChange} name={'hour[start]'}
+                               className={'form-control'} placeholder={'start'}/>
         }
 
         let end = this.props.end;
         if (this.props.editmode === 'full' || this.props.editmode === 'status') {
-            end = <TimeInput initTime={this.props.end} onTimeChange={this.handleEndChange} name={this.props.editmode == 'status' ? 'hour[' + this.props.detailid + '][end]' : 'hour[end]'}/>
+            end = <TimeInput initTime={this.props.end} onTimeChange={this.handleEndChange}
+                             name={this.props.editmode == 'status' ? 'hour[' + this.props.detailid + '][end]' : 'hour[end]'}
+                             className={'form-control'} placeholder={'end'}/>
         }
 
         let activity;
         if (this.props.editmode === 'full') {
-            activity = ( <select name={'hour[activity]'} value={this.props.activity ? this.props.activity : ''} onChange={this.handleActivityChange}>
+            activity = (<select name={'hour[activity]'} value={this.props.activity ? this.props.activity : ''}
+                                onChange={this.handleActivityChange} className={'form-control'}>
                 <option value={'Admin'}>Admin</option>
                 <option value={'Depot'}>Depot</option>
                 <option value={'On-site'}>On-site</option>
@@ -61,29 +71,42 @@ class Hours extends Component {
                 <option value={'OT On-Site'}>OT On-Site</option>
                 <option value={'OT Travel'}>OT Travel</option>
                 <option value={'OT Depot'}>OT Depot</option>
-            </select> )
+            </select>)
         } else {
             activity = this.props.activity;
         }
 
         let status;
         if (this.props.editmode === 'status' || this.props.editmode === 'full') {
-            status = ( <select name={this.props.editmode == 'status' ? 'hour[' + this.props.detailid + '][status]' : 'hour[status]'} value={this.props.status ? this.props.status : ''} onChange={this.handleStatusChange}>
+            status = (<select
+                name={this.props.editmode == 'status' ? 'hour[' + this.props.detailid + '][status]' : 'hour[status]'}
+                value={this.props.status ? this.props.status : ''} onChange={this.handleStatusChange}
+                className={'form-control'}>
+
                 <option value={'Complete'}>Complete</option>
                 <option value={'Loaner'}>Loaner</option>
                 <option value={'On Way'}>On Way</option>
                 <option value={'Parts'}>Parts</option>
                 <option value={'Returning'}>Returning</option>
                 <option value={'To Shop'}>To Shop</option>
-            </select> )
+            </select>)
         } else {
             status = this.props.status
         }
 
         let detailid;
         if (this.props.editmode === 'full' && this.props.detailid) {
-            detailid = <input type={'hidden'} name={'hour[detailid]'} value={this.props.detailid} />
+            detailid = <input type={'hidden'} name={'hour[detailid]'} value={this.props.detailid} className={'form-control'}/>
         }
+        let edit;
+        if (this.props.editmode === 'full') {
+
+        } else {
+            edit = <Button onClick={this.handleEditChange} variant={'link'} className={'secret-link'}>
+                ✏<span className={'d-float d-sm-none'}>Edit</span>
+            </Button>
+        }
+
         if (this.props.visible) {
             return(
                 <Row className="hour-record">
@@ -92,6 +115,7 @@ class Hours extends Component {
                     <Col sm>{end}</Col>
                     <Col sm>{activity}</Col>
                     <Col sm>{status}{detailid}</Col>
+                    <Col sm>{edit}</Col>
                 </Row>
             )
         } else {

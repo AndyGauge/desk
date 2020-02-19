@@ -4,7 +4,7 @@ import ButtonToolbar from 'react-bootstrap/ButtonToolbar'
 import Col from 'react-bootstrap/Col'
 import DatePicker from 'react-date-picker';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faCheck } from '@fortawesome/free-solid-svg-icons'
 import Row from 'react-bootstrap/Row'
 import PropTypes from "prop-types";
 import Hours from './Hours'
@@ -18,9 +18,8 @@ class Field extends Component {
             workorder: '',
             techheader: null,
             newhourvisible: false,
+            submitvisible: false,
             last_hour: null,
-            new_activity: '',
-            new_status: '',
             new_hour: {},
         };
         this.hoursChange = this.hoursChange.bind(this);
@@ -35,8 +34,7 @@ class Field extends Component {
         this.fetchController = new AbortController();
         const signal = this.fetchController.signal;
         let workdate = this.state.workdate ? this.state.workdate : new Date();
-        this.setState({workdate})
-        fetch('http://localhost:3000/hours/' + this.props.tech + '/dated/' + this.getWorkdateISODate(workdate), {signal})
+        fetch('http://192.168.1.91:3000/hours/' + this.props.tech + '/dated/' + this.getWorkdateISODate(workdate), {signal})
             .then(   response => response.json())
             .then(   hours => this.setHourState(hours))
             .catch(error => {
@@ -45,13 +43,15 @@ class Field extends Component {
             });
     }
     getWorkdateISODate = (workdate) => {
-        workdate.setMinutes(workdate.getMinutes() - workdate.getTimezoneOffset())
-        return workdate.toISOString().substring(0,10)
+        let offsetTime = new Date(workdate.getTime())
+        offsetTime.setMinutes(offsetTime.getMinutes() - workdate.getTimezoneOffset())
+        return offsetTime.toISOString().substring(0,10)
     }
     setHourState = (response) => {
         let hours = response.hours.map(hour => {
             hour.start = this.convertDateTimeto24HourTime(hour.start)
             hour.end = this.convertDateTimeto24HourTime(hour.end)
+            hour.editmode = ''
             return hour
         })
         let techheader = response.techheader
@@ -62,11 +62,15 @@ class Field extends Component {
         return datetime.getHours() + ':' + datetime.getMinutes().toString().padStart(2,'0')
     }
     changeDate = (workdate) => {
-        let new_hour = {}, last_hour = null, newhourvisible = false;
-        this.setState({workdate, new_hour, last_hour, newhourvisible}, this.fetchHours);
+        let new_hour = {}, last_hour = null, newhourvisible = false, submitvisible = false;
+        if (workdate === null) {
+            workdate = new Date();
+        }
+        workdate.setHours(20);
+        this.setState({workdate, new_hour, last_hour, newhourvisible, submitvisible}, this.fetchHours);
     }
     newHour = () => {
-        this.setState({newhourvisible: true})
+        this.setState({newhourvisible: true, submitvisible: true})
         let last_hour;
         if (this.state.hours.length > 0) {
             last_hour = this.state.hours[this.state.hours.length -1]
@@ -107,19 +111,35 @@ class Field extends Component {
         }
     };
     hoursChange = (hourProperties) => {
-        console.log(hourProperties[0])
         if (typeof(hourProperties[0]) == 'object') {
             const new_hour = Object.assign(this.state.new_hour, hourProperties[0])
             this.setState({new_hour})
         } else if (this.state.last_hour && (typeof(hourProperties[this.state.last_hour.detailid]))) {
             const last_hour = Object.assign(this.state.last_hour, hourProperties[this.state.last_hour.detailid])
             this.setState({last_hour})
+        } else {
+            const detailid = Object.keys(hourProperties)[0]
+            let hours = this.state.hours
+            const idx = hours.findIndex(h => h.detailid == detailid)
+            hours[idx] = Object.assign(hours[idx], hourProperties[detailid])
+            const submitvisible = true
+            this.setState({hours, submitvisible})
         }
+    }
+    cancelForm = () => {
+
+        this.setState({
+            new_hour: {},
+            last_hour: null,
+            submitvisible: false,
+            newhourvisible: false,
+        })
+        this.fetchHours()
     }
     render() {
         let hours = this.state.hours.map((hour,key) => {
                // this.setState({workorder: hour.workorder, techheader: hour.techheader})
-                return (<Hours key={"hour"+hour.detailid} {...hour} visible={true} />)
+                return (<Hours key={"hour"+hour.detailid} hoursChange={this.hoursChange} {...hour} visible={true} />)
             })
         let partial_edit
         if (this.state.last_hour) {
@@ -139,20 +159,21 @@ class Field extends Component {
                         onChange={this.changeDate}
                         value={this.state.workdate}
                     />
-
+                    <form action={'/hours'} method={'post'}>
+                        <input type="hidden" name="authenticity_token" value={csrf_token} readOnly={true} />
+                        <input type="hidden" name="hour[techheader]" value={this.state.techheader} readOnly={true} />
                     <Row className="d-none d-md-flex hours-header">
                         <Col sm>Work Order</Col>
                         <Col sm>Start</Col>
                         <Col sm>End</Col>
-                        <Col sm />
+                        <Col sm >Activity</Col>
+                        <Col sm >Status</Col>
                         <Col sm />
                     </Row>
                     {hours}
                     <Row>
                         <Col>
-                            <form action={'/hours'} method={'post'}>
-                                <input type="hidden" name="authenticity_token" value={csrf_token} readOnly={true} />
-                                <input type="hidden" name="hour[techheader]" value={this.state.techheader} readOnly={true} />
+
                                 {partial_edit}
                                 <Hours
                                     key={"hournew"}
@@ -160,15 +181,10 @@ class Field extends Component {
                                     hoursChange={this.hoursChange}
                                     editmode={'full'}
                                     detailid={0}
+                                    workorder={''}
                                     {...this.state.new_hour}
                                 />
-                                <ButtonToolbar>
-                                    <Button
-                                        className={this.state.newhourvisible ? 'visible':'invisible'}
-                                        variant={"success"}
-                                        type={"submit"}
-                                    >Save</Button>
-
+                                <ButtonToolbar className={'field-buttons'}>
                                     <Button
                                         variant="primary"
                                         onClick={this.newHour}
@@ -176,10 +192,20 @@ class Field extends Component {
                                     >
                                         <FontAwesomeIcon icon={faPlus} /> New
                                     </Button>
+                                    <Button
+                                        className={this.state.submitvisible ? 'visible':'invisible'}
+                                        variant={"success"}
+                                        type={"submit"}
+                                    ><FontAwesomeIcon icon={faCheck} /> Save</Button>
+                                    <Button
+                                        className={this.state.submitvisible ? 'visible':'invisible'}
+                                        variant={"danger"}
+                                        onClick={this.cancelForm}
+                                    >Cancel</Button>
                                 </ButtonToolbar>
-                            </form>
                         </Col>
                     </Row>
+                    </form>
 
                 </React.Fragment>
             )

@@ -91,3 +91,17 @@ span.customer-title {
   color: #000000;
   text-decoration: none;
 }
+
+.field-buttons {
+  padding-top: 20px
+}
+
+.field-buttons > .btn {
+  margin-right: 15px;
+}
+
+.hours-header.row {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  font-weight: 600;
+}
