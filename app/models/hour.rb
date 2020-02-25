@@ -2,8 +2,14 @@ class Hour < Sequel::Model(:hoursdetail)
 	set_primary_key :detailid
 	many_to_one :tech_date, key: :techheader
 
+	plugin :validation_helpers
+	def validate
+		super
+		validates_presence :workorder
+	end
+
 	def before_save
-		if self.start && self.end
+		if self.start && self.end && self.end > self.start
 			self.hours = (self.end - self.start) / 3600.0
 		else
 			self.hours = nil

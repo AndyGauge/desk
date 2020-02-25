@@ -10,6 +10,7 @@ class HoursSaver
 
   private
   def create_hour(hour_hash)
+    return true if hour_hash[:workorder].nil? # Don't create an hour record when we are only updating
     hour = Hour.new whitelist_hour_params(hour_hash)
     hour.save
   end

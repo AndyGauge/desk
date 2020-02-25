@@ -58,8 +58,13 @@ class Field extends Component {
         this.setState({hours, techheader})
     }
     convertDateTimeto24HourTime = (datetime) => {
-        datetime = new Date(datetime)
-        return datetime.getHours() + ':' + datetime.getMinutes().toString().padStart(2,'0')
+        if (datetime) {
+            datetime = new Date(datetime)
+            return datetime.getHours() + ':' + datetime.getMinutes().toString().padStart(2,'0')
+        } else {
+            return null
+        }
+
     }
     changeDate = (workdate) => {
         let new_hour = {}, last_hour = null, newhourvisible = false, submitvisible = false;
@@ -79,13 +84,17 @@ class Field extends Component {
         const [prev_status, new_activity, new_status] = this.popularStateTransitions(last_hour)
         if(prev_status) {
             last_hour.status = prev_status
+            last_hour.editmode = 'status'
+            if(last_hour.end === null) {
+                last_hour.end = this.convertDateTimeto24HourTime(Date.now())
+            }
+
         }
         let new_hour = this.state.new_hour
         new_hour.activity = new_activity
         new_hour.status = new_status
-        if(this.state.last_hour) {
+        if(last_hour.workorder) {
             new_hour.workorder = last_hour.workorder
-            new_hour.techheader = last_hour.techheader
         }
         new_hour.start= this.convertDateTimeto24HourTime(Date.now())
 
@@ -95,16 +104,16 @@ class Field extends Component {
         if (typeof(hour) === 'undefined'){
            return [null, "Travel", "On Way"]
         }
-        switch(hour.Activity) {
+        switch(hour.activity) {
             case "Depot":
                 return ["Complete", "Travel", "On Way"]
             case "Travel":
-                if (hour.Status === 'On Way') {
-                    return ["Complete", "On Site", ""]
+                if (hour.status === 'On Way') {
+                    return ["Complete", "On-site", ""]
                 } else {
                     return [null, "Travel", "On Way"]
                 }
-            case "On Site":
+            case "On-site":
                 return ["Complete", "Travel", "To Shop"]
             default:
                 return [null, "Travel", "On Way"];
