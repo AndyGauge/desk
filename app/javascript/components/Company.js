@@ -20,25 +20,26 @@ class Company extends Component {
             modalContent: '',
             modalIncident: '',
         };
+        this.copyText = this.copyText.bind(this);
     }
     componentDidMount() {
         this.fetchController = new AbortController();
         const signal = this.fetchController.signal;
-            fetch('http://localhost:3000/customers/' + this.props.id + '/contacts', {signal})
+            fetch('http://192.168.1.91:3000/customers/' + this.props.id + '/contacts', {signal})
                 .then(   response => response.json())
                 .then(   contacts => this.setState({ contacts }))
                 .catch(error => {
                     if (error.name === 'AbortError') return;
                     throw error;
                 });
-            fetch('http://localhost:3000/customers/' + this.props.id + '/connections', {signal})
+            fetch('http://192.168.1.91:3000/customers/' + this.props.id + '/connections', {signal})
                 .then(   response => response.json())
                 .then(connections => this.setState({ connections }))
                 .catch(error => {
                     if (error.name === 'AbortError') return;
                     throw error;
                 });
-            fetch('http://localhost:3000/customers/' + this.props.id + '/incidents', {signal})
+            fetch('http://192.168.1.91:3000/customers/' + this.props.id + '/incidents', {signal})
                 .then(   response => response.json())
                 .then(  incidents => this.setState({ incidents }))
                 .catch(error => {
@@ -48,6 +49,16 @@ class Company extends Component {
     }
     componentWillUnmount() {
         this.fetchController.abort();
+    }
+    copyText = (e) => {
+        e.preventDefault()
+        const tempStor = document.createElement('textarea');
+        console.log(e.target)
+        tempStor.value = e.target.text
+        document.body.appendChild(tempStor);
+        tempStor.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempStor)
     }
     render () {
     return (
@@ -100,8 +111,8 @@ class Company extends Component {
                               <div key={"connection" + connection.ID} className="row contact-record">
                                   <div className="col-sm">{connection.Type}</div>
                                   <div className="col-sm"><a href={connection.Address} target="_blank">{connection.Address}</a></div>
-                                  <div className="col-sm">{connection.UserId}</div>
-                                  <div className="col-sm">{connection.Password}</div>
+                                  <div className="col-sm"><a href="#" onClick={this.copyText} className={'secret-link'}>{connection.UserId}</a></div>
+                                  <div className="col-sm"><a href="#" onClick={this.copyText} className={'secret-link'}>{connection.Password}</a></div>
                                   <div className="col-sm">{connection.Description}</div>
                               </div>
                           )}
@@ -195,7 +206,7 @@ class Company extends Component {
   }
     render_incident = (incident) => {
         const signal = this.fetchController.signal;
-        fetch('http://localhost:3000/incidents/' + incident.Id + '/events', {signal})
+        fetch('http://192.168.1.91:3000/incidents/' + incident.Id + '/events', {signal})
             .then(   response => response.json())
             .then(calls => this.setState({calls}))
             .catch(error => {

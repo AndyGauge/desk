@@ -11,6 +11,7 @@ class User < ApplicationRecord
   # use ldap uid as primary key
   before_validation do
     self.username = email.split('@').first
+    self.tech = QueryLdapProperties.new(username).tech
   end
 
   def authenticatable_salt

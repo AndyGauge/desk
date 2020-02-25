@@ -17,15 +17,13 @@
   <div class="container">
 
   </div>
+    <%= render "shared/top_nav" %>
     <% if notice %>
       <p class="alert alert-success"><%= notice %></p>
     <% end %>
     <% if alert %>
       <p class="alert alert-danger"><%= alert %></p>
     <% end %>
-
-    <%= render "shared/top_nav" %>
-
     <div class="main" >
       <div class="main-inner">
         <div class="container">

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_17_005739) do
+ActiveRecord::Schema.define(version: 2020_01_24_215442) do
 
   create_table "customers", force: :cascade do |t|
     t.string "company"
@@ -40,6 +40,7 @@ ActiveRecord::Schema.define(version: 2019_12_17_005739) do
     t.string "direct_otp"
     t.datetime "direct_otp_sent_at"
     t.datetime "totp_timestamp"
+    t.string "tech"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["encrypted_otp_secret_key"], name: "index_users_on_encrypted_otp_secret_key", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
