@@ -5,7 +5,7 @@
 
   </div>
   <div class="col-sm-6">
-    <input type="text" id="customer_search" />
+    <input type="text" id="customer_search" class="searchinput" />
   </div>
 </div>
 <div class="row widget" id="customer_list">
@@ -13,7 +13,7 @@
 
   <%  @customers.each do |customer| %>
       <div class="row tall-lg customer_row">
-        <div class="col-sm customer_name"><%= link_to customer.company, customer %></div>
+        <div class="col-sm customer_name"><%= link_to customer.company, "/customers/#{customer.id}" %></div>
         <div class="col-sm d-none d-md-block"><%= customer.contact %></div>
         <div class="col-sm d-none d-md-block"><%= customer.phone %></div>
         <div class="col-sm d-none d-md-block"><%= customer.address %> <%= customer.city %> <%= customer.state %></div>

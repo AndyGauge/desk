@@ -16,7 +16,7 @@ class FetchConnectionsService < FetchFromCdeskService
 			rescue
 				return url
 			end
-		if !u.scheme
+		unless u.scheme
 			return "http://#{url}"
 		end
 		url

@@ -10,7 +10,6 @@ class CustomersController < ApplicationController
   # GET /customers/1
   # GET /customers/1.json
   def show
-    @customer_as_json = @customer.as_json
   end
 
   # GET /customers/new
@@ -63,21 +62,21 @@ class CustomersController < ApplicationController
   end
 
   def contacts
-    render json: FetchContactsService.new.by_customer(@customer.cdeskid)
+    render json: FetchContactsService.new.by_customer(@customer.id)
   end
 
   def connections
-    render json: FetchConnectionsService.new.by_customer(@customer.cdeskid)
+    render json: @customer.connections.sort_by{|a| a[:"device type"].to_s.upcase }
   end
 
   def incidents
-    render json: FetchIncidentsService.new.by_customer(@customer.cdeskid)
+    render json: FetchIncidentsService.new.by_customer(@customer.id)
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_customer
-      @customer = Customer.find(params[:id])
+      @customer = Customer[params[:id]]
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
