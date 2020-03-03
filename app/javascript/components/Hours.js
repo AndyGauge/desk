@@ -1,8 +1,9 @@
 import React, { Component} from "react"
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col'
+import Form from 'react-bootstrap/Form'
 import Row from 'react-bootstrap/Row'
-import TimeInput from 'react-time-input';
+import TimeInput from './timeInput.jsx';
 import PropTypes from "prop-types";
 class Hours extends Component {
     constructor(props) {
@@ -35,13 +36,16 @@ class Hours extends Component {
     handleEditChange = (e) => {
         this.props.hoursChange({[this.props.detailid]: {editmode: 'update'}})
     }
+    handleNotesChange = (e) => {
+        this.props.hoursChange({[this.props.detailid]: {notes: e.target.value} })
+    }
     render() {
         let workorder;
         if (this.props.editmode === 'full') {
-            workorder = <input type={'text'} value={this.props.workorder} onChange={this.handleWorkOrderChange}
+            workorder = <Form.Control type={'text'} value={this.props.workorder} onChange={this.handleWorkOrderChange}
                                name={'hour[workorder]'} className={'form-control'} placeholder={'workorder'}/>
         } else if (this.props.editmode === 'update') {
-            workorder = <input type={'text'} value={this.props.workorder} onChange={this.handleWorkOrderChange}
+            workorder = <Form.Control type={'text'} value={this.props.workorder} onChange={this.handleWorkOrderChange}
                                name={'hour[' + this.props.detailid + '][workorder]'} className={'form-control'} placeholder={'workorder'}/>
         } else {
             workorder = this.props.workorder;
@@ -64,7 +68,7 @@ class Hours extends Component {
 
         let activity;
         if (['full', 'update'].includes(this.props.editmode)) {
-            activity = (<select value={this.props.activity ? this.props.activity : ''}
+            activity = (<Form.Control as={'select'} value={this.props.activity ? this.props.activity : ''}
                                 onChange={this.handleActivityChange} className={'form-control'}
                                 name={['status', 'update'].includes(this.props.editmode) ? 'hour[' + this.props.detailid + '][activity]' : 'hour[activity]'}>
                 <option value={'Admin'}>Admin</option>
@@ -78,35 +82,34 @@ class Hours extends Component {
                 <option value={'OT On-Site'}>OT On-Site</option>
                 <option value={'OT Travel'}>OT Travel</option>
                 <option value={'OT Depot'}>OT Depot</option>
-            </select>)
+            </Form.Control>)
         } else {
             activity = this.props.activity;
         }
 
         let status;
         if (['full', 'update', 'status'].includes(this.props.editmode)) {
-            status = (<select
+            status = (<Form.Control as={'select'} className={'form-control'}
                 name={['status', 'update'].includes(this.props.editmode) ? 'hour[' + this.props.detailid + '][status]' : 'hour[status]'}
-                value={this.props.status ? this.props.status : ''} onChange={this.handleStatusChange}
-                className={'form-control'}>
-                <option value={''}></option>
+                value={this.props.status ? this.props.status : ''} onChange={this.handleStatusChange} >
+                <option value={''} />
                 <option value={'Complete'}>Complete</option>
                 <option value={'Loaner'}>Loaner</option>
                 <option value={'On Way'}>On Way</option>
                 <option value={'Parts'}>Parts</option>
                 <option value={'Returning'}>Returning</option>
                 <option value={'To Shop'}>To Shop</option>
-            </select>)
+            </Form.Control>)
         } else {
             status = this.props.status
         }
 
         let detailid;
         if (this.props.editmode === 'full' && this.props.detailid) {
-            detailid = <input type={'hidden'} name={'hour[detailid]'} value={this.props.detailid} className={'form-control'}/>
+            detailid = <Form.Control type={'hidden'} name={'hour[detailid]'} value={this.props.detailid} className={'form-control'}/>
         }
         let edit;
-        if (this.props.editmode === 'full') {
+        if (['full', 'update'].includes(this.props.editmode)) {
 
         } else {
             edit = <Button onClick={this.handleEditChange} variant={'link'} className={'secret-link'}>
@@ -114,16 +117,33 @@ class Hours extends Component {
             </Button>
         }
 
+        let notes;
+        if (['full', 'update'].includes(this.props.editmode)) {
+            notes = <Row>
+                <Col sm={10}>
+                    <Form.Group controlId={"Notes" + this.props.detailid}>
+                        <Form.Label>Notes</Form.Label>
+                        <Form.Control as="textarea" rows="3" value={typeof this.props.notes === "string" ? this.props.notes : ""}
+                                      name={['status', 'update'].includes(this.props.editmode) ? 'hour[' + this.props.detailid + '][notes]' : 'hour[notes]'}
+                                      onChange={this.handleNotesChange} />
+                    </Form.Group>
+                </Col>
+            </Row>
+        }
+
         if (this.props.visible) {
             return(
-                <Row className="hour-record">
-                    <Col sm>{workorder}</Col>
-                    <Col sm>{start}</Col>
-                    <Col sm>{end}</Col>
-                    <Col sm>{activity}</Col>
-                    <Col sm>{status}{detailid}</Col>
-                    <Col sm>{edit}</Col>
-                </Row>
+                <React.Fragment>
+                    <Row className="hour-record">
+                        <Col sm>{workorder}</Col>
+                        <Col sm>{start}</Col>
+                        <Col sm>{end}</Col>
+                        <Col sm>{activity}</Col>
+                        <Col sm>{status}{detailid}</Col>
+                        <Col sm>{edit}</Col>
+                    </Row>
+                    {notes}
+                </React.Fragment>
             )
         } else {
             return null

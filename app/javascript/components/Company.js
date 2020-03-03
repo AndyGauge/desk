@@ -108,14 +108,19 @@ class Company extends Component {
                               <div className="col-sm">Description</div>
                           </div>
                           {this.connections = this.state.connections.map((connection,key) =>
-                              <div key={"connection" + connection.ID} className="row contact-record">
-                                  <div className="col-sm">{connection.Type}</div>
-                                  <div className="col-sm"><a href={connection.Address} target="_blank">{connection.Address}</a></div>
-                                  <div className="col-sm"><a href="#" onClick={this.copyText} className={'secret-link'}>{connection.UserId}</a></div>
-                                  <div className="col-sm"><a href="#" onClick={this.copyText} className={'secret-link'}>{connection.Password}</a></div>
-                                  <div className="col-sm">{connection.Description}</div>
+                              <div key={"connection" + connection.ID}>
+                                  <div  className="row contact-record">
+                                      <div className="col-sm">{connection.Type}</div>
+                                      <div className="col-sm"><a href={connection.Address} target="_blank">{connection.Address}</a></div>
+                                      <div className="col-sm"><a href="#" onClick={this.copyText} className={'secret-link'}>{connection.UserId}</a></div>
+                                      <div className="col-sm"><a href="#" onClick={this.copyText} className={'secret-link'}>{connection.Password}</a></div>
+                                      <div className="col-sm">{connection.Description}</div>
+                                  </div>
+                                  <div className={'hidden'}>
+                                      {connection.Notes}
+                                  </div>
                               </div>
-                          )}
+                             )}
                       </Card.Body>
                   </Accordion.Collapse>
               </Card>
