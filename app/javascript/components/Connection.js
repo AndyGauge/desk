@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Col from 'react-bootstrap/Col'
+import Form from 'react-bootstrap/Form'
 import Row from 'react-bootstrap/Row'
 
 class Connection extends Component {
@@ -10,15 +11,25 @@ class Connection extends Component {
 
         this.state = {};
         this.handleEditChange = this.handleEditChange.bind(this);
+        this.handleDeviceTypeChange = this.handleDeviceTypeChange.bind(this);
     }
     handleEditChange = (e) => {
         this.props.connectionChange({[this.props.id]: {editmode: 'update'}})
-    }
+    };
+    handleDeviceTypeChange = (e) => {
+        this.props.connectionChange({[this.props.id]: {'device type': e.target.value}})
+    };
     handleViewNoteChange = (e) => {
         this.props.connectionChange({[this.props.id]: {visibleNotes: !this.props.visibleNotes}})
     }
 
     render() {
+        let type = this.props["device type"];
+        if (['full', 'update'].includes(this.props.editmode)) {
+            type = <Form.Control as={'select'} value={type ? type : ''} onChange={this.handleDeviceTypeChange}>
+                { this.props.device_types.map((device_type) => <option value={device_type} key={'device'+device_type}>{device_type}</option> )}
+            </Form.Control>
+        }
         let edit;
         if (['full', 'update'].includes(this.props.editmode)) {
             edit = (this.props.notes) ? (
@@ -51,7 +62,7 @@ class Connection extends Component {
         return (
             <React.Fragment>
                 <Row className={'contact-record'}>
-                    <Col sm>{this.props["device type"]}</Col>
+                    <Col sm>{type}</Col>
                     <Col sm><a href={this.props.address} target="_blank">{this.props.address}</a></Col>
                     <Col sm><a href="#" onClick={this.props.copyText}
                                className={'secret-link'}>{this.props["user id"]}</a></Col>

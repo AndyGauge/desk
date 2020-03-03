@@ -10,6 +10,7 @@ class CustomersController < ApplicationController
   # GET /customers/1
   # GET /customers/1.json
   def show
+    set_device_types
   end
 
   # GET /customers/new
@@ -83,4 +84,8 @@ class CustomersController < ApplicationController
     def customer_params
       params.require(:customer).permit(:company, :contact, :phone, :address, :city, :state, :cdeskid)
     end
+
+  def set_device_types
+    @device_types =  Desk::DataSource.cdesk[:"lu- Device Type"].all.map{ |type| type[:"device type"]}.sort
+  end
 end

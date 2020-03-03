@@ -149,7 +149,7 @@ class Company extends Component {
                           </div>
                           {this.connections = this.state.filtered_connections.map((connection,key) =>
                                 <Connection {...connection} copyText={this.copyText} key={"connection" + connection.id}
-                                            connectionChange={this.connectionChange}/>
+                                            connectionChange={this.connectionChange} device_types={this.props.device_types}/>
                              )}
                       </Card.Body>
                   </Accordion.Collapse>
