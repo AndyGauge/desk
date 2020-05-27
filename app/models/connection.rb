@@ -8,4 +8,13 @@ class Connection < Sequel::Model(Desk::DataSource.cdesk[:connections].select(:id
 		validates_presence :customerid
 	end
 
+	def set_from_params(params)
+		self['Device Type'] = params['Device Type'] if params['Device Type']
+		self[:description] = params[:description] if params[:description]
+		self['user id'] = params['user id'] if params['user id']
+		self[:password] = params[:password] if params[:password]
+		self[:address] = params[:address] if params[:address]
+		self[:notes] = params[:notes] if params[:notes]
+	end
+
 end

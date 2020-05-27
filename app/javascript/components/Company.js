@@ -106,6 +106,7 @@ class Company extends Component {
                   </Card.Header>
                   <Accordion.Collapse eventKey="0">
                       <Card.Body>
+
                           <div className="d-none d-md-flex contact-header row">
                                   <div className="col-sm">Name</div>
                                   <div className="col-sm">Office</div>
@@ -113,7 +114,7 @@ class Company extends Component {
                                   <div className="col-sm">Cell</div>
                                   <div className="col-sm">E-mail</div>
                           </div>
-                          {this.contacts = this.state.contacts.map((contact,key) =>
+                          {this.state.contacts.map((contact,key) =>
                               <div key={"contact" + contact.Id} className="row contact-record">
                                   <div className="col-sm">{contact.ContactName}</div>
                                   <div className="col-sm">{contact.OfficePhone}</div>
@@ -139,6 +140,7 @@ class Company extends Component {
                   </Card.Header>
                   <Accordion.Collapse eventKey="1">
                       <Card.Body>
+
                           <div className="d-none d-md-flex contact-header row">
                               <div className="col-sm">Type</div>
                               <div className="col-sm">Address</div>
@@ -147,10 +149,12 @@ class Company extends Component {
                               <div className="col-sm">Description</div>
                               <div className={"col-sm"} />
                           </div>
-                          {this.connections = this.state.filtered_connections.map((connection,key) =>
+                          {this.state.filtered_connections.map((connection,key) =>
                                 <Connection {...connection} copyText={this.copyText} key={"connection" + connection.id}
                                             connectionChange={this.connectionChange} device_types={this.props.device_types}/>
                              )}
+
+
                       </Card.Body>
                   </Accordion.Collapse>
               </Card>
@@ -168,7 +172,7 @@ class Company extends Component {
                               <div className="col-sm">Tech</div>
                               <div className="col-sm">Status</div>
                           </div>
-                          {this.connections = this.state.incidents.map((incident,key) =>
+                          {this.state.incidents.map((incident,key) =>
                               <div key={"incident" + incident.Id} className="row contact-record">
                                   <div className="col-sm">{incident.OpenedDate}</div>
                                   <div className="col-sm">

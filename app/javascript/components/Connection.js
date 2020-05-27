@@ -18,6 +18,10 @@ class Connection extends Component {
         this.handleDeviceTypeChange = this.handleDeviceTypeChange.bind(this);
         this.handleAddressChange = this.handleAddressChange.bind(this);
         this.handleUserChange = this.handleUserChange.bind(this);
+        this.handlePasswordChange = this.handlePasswordChange.bind(this);
+        this.handleDescriptionChange=this.handleDescriptionChange.bind(this);
+        this.handleNotesChange=this.handleNotesChange.bind(this);
+        this.handleCancelClick = this.handleCancelClick.bind(this);
     }
     handleEditChange = (e) => {
         this.props.connectionChange({[this.props.id]: {editmode: 'update'}})
@@ -31,11 +35,60 @@ class Connection extends Component {
     handleUserChange = (e) => {
         this.props.connectionChange({[this.props.id]: {'user name': e.target.value}})
     }
+    handlePasswordChange = (e) => {
+        this.props.connectionChange({[this.props.id]: {password: e.target.value}})
+    };
+    handleDescriptionChange = (e) => {
+        this.props.connectionChange({[this.props.id]: {description: e.target.value}})
+    };
+    handleNotesChange = (e) => {
+        this.props.connectionChange({[this.props.id]: {notes: e.target.value}})
+    };
     handleViewNoteChange = (e) => {
         this.props.connectionChange({[this.props.id]: {visibleNotes: !this.props.visibleNotes}})
     };
+    handleCancelClick = (e) => {
+        this.props.connectionChange({[this.props.id]: {editmode: ''}})
+    };
+
+    handleSubmit = (e) => {
+        e.preventDefault();
+        const csrf_token = document.head.querySelector("[name~=csrf-token]").content
+        let formData = new FormData();
+        formData.append('authenticity_token', csrf_token);
+        formData.append('_method', 'PUT');
+        formData.append('connection[Device Type]', this.props['device type']);
+        if (this.props.description) {
+            formData.append('connection[description]', this.props.description);
+        }
+        if (this.props['user id']) {
+            formData.append('connection[user id]', this.props['user id']);
+        }
+        if (this.props.password) {
+            formData.append('connection[password]', this.props.password);
+
+        }
+        if (this.props.address) {
+            formData.append('connection[address]', this.props.address);
+        }
+        if (this.props.notes) {
+            formData.append('connection[notes]', this.props.notes);
+        }
+        fetch('http://192.168.1.91:3000/connections/'+this.props.id, {
+            method: 'POST',
+            body: formData
+        }).then(response => {this.handleUpdate(response.status < 400)})
+    }
+
+    handleUpdate = (valid) => {
+        if (valid) {
+            this.props.connectionChange({[this.props.id]: {editmode: false}})
+        }
+    }
 
     render() {
+
+
         let type = this.props["device type"];
         if (['full', 'update'].includes(this.props.editmode)) {
             type = <Form.Control as={'select'} value={type ? type : ''} onChange={this.handleDeviceTypeChange}>
@@ -50,18 +103,32 @@ class Connection extends Component {
         } else {
             address = <a href={address} target="_blank">{address}</a>
         }
-        let user = this.props["user id"]
+        let user = this.props["user id"];
         if (['full', 'update'].includes(this.props.editmode)) {
             user = <Form.Control type={'text'} value={user ? user : ''} onChange={this.handleUserChange}
                                     name={'connection[' + this.props.id + '][user name]'}/>
         } else {
             user = <a href="#" onClick={this.props.copyText} className={'secret-link'}>{user}</a>
         };
+        let password = this.props.password;
+        if (['full', 'update'].includes(this.props.editmode)) {
+            password = <Form.Control type={'text'} value={password ? password : ''} onChange={this.handlePasswordChange}
+                                 name={'connection[' + this.props.id + '][password]'}/>            
+        } else {
+            password = <a href="#" onClick={this.props.copyText} className={'secret-link'}>{password}</a>
+        }
+        let description = this.props.description;
+        if (['full', 'update'].includes(this.props.editmode)) {
+            description = <Form.Control type={'text'} value={description ? description : ''} onChange={this.handleDescriptionChange}
+                                     name={'connection[' + this.props.id + '][description]'}/>
+        } else {
+            description = <a href="#" onClick={this.props.copyText} className={'secret-link'}>{description}</a>
+        }
         let edit;
         if (['full', 'update'].includes(this.props.editmode)) {
             edit = <ButtonGroup>
-                    <Button variant={'success'} size={'sm'} type={'submit'}><FontAwesomeIcon icon={faCheck} /></Button>
-                    <Button variant={'danger'} size={'sm'} type={'reset'}><FontAwesomeIcon icon={faWindowClose} /></Button>
+                    <Button variant='success' size='sm' onClick={this.handleSubmit}><FontAwesomeIcon icon={faCheck} /></Button>
+                    <Button variant='danger' size='sm' type='reset' onClick={this.handleCancelClick}><FontAwesomeIcon icon={faWindowClose} /></Button>
                 </ButtonGroup>
         } else {
             edit = <ButtonGroup>
@@ -85,18 +152,28 @@ class Connection extends Component {
                 </Col>
             </Row>
         }
+        if (['full', 'update'].includes(this.props.editmode)) {
+            notes = this.props.notes;
+            notes = <Row>
+                <Col sm={{span: 10, offset: 0}}>
+                <Form.Control as={'textarea'} value={notes ? notes : ''} onChange={this.handleNotesChange}
+                              name={'connection[' + this.props.id + '][notes]'} rows={3}/>
+                </Col>
+            </Row>
+        }
         return (
             <React.Fragment>
-                <Row className={'contact-record'} className>
+                <form>
+                <Row className={'contact-record'} >
                     <Col sm>{type}</Col>
                     <Col sm>{address}</Col>
                     <Col sm>{user}</Col>
-                    <Col sm><a href="#" onClick={this.props.copyText}
-                               className={'secret-link'}>{this.props.password}</a></Col>
-                    <Col sm>{this.props.description}</Col>
+                    <Col sm>{password}</Col>
+                    <Col sm>{description}</Col>
                     <Col sm>{edit}</Col>
                 </Row>
                 {notes}
+                </form>
             </React.Fragment>
         )
     }

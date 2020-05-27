@@ -11,18 +11,20 @@ module Desk
 			end
 
 			def connect_sequel
-				@@capture ||= Sequel.connect(adapter: 'tinytds',
+				@@capture ||= Sequel.connect({adapter: 'tinytds',
 																		host: ENV.fetch('CDESKSQL'),
+																	 	port: 1433,
 																	 	database: ENV.fetch('CAPTUREDB'),
 																	 	user: ENV.fetch('CDESKUSERNAME'),
 																	 	password: ENV.fetch('CDESKPASSWORD'),
-																	 	loggers: [Logger.new($stdout)])
-				@@cdesk ||=   Sequel.connect(adapter: 'tinytds',
+																	 	loggers: [Logger.new($stdout)]})
+				@@cdesk ||=   Sequel.connect({adapter: 'tinytds',
 																		host: ENV.fetch('CDESKSQL'),
+																	 	port: 1433,
 																		database: ENV.fetch('CDESKDB'),
 																		user: ENV.fetch('CDESKUSERNAME'),
 																		password: ENV.fetch('CDESKPASSWORD'),
-																		loggers: [Logger.new($stdout)])
+																		loggers: [Logger.new($stdout)]})
 				self
 			end
 		end
