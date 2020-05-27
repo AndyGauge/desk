@@ -3,6 +3,8 @@ import Accordion from 'react-bootstrap/Accordion'
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 import Col from 'react-bootstrap/Col'
+import Connection from './Connection.js'
+import Form from 'react-bootstrap/Form'
 import Modal from 'react-bootstrap/Modal'
 import Row from 'react-bootstrap/Row'
 import PropTypes from "prop-types"
@@ -19,8 +21,12 @@ class Company extends Component {
             modalClass: '',
             modalContent: '',
             modalIncident: '',
+            connection_search: '',
+            filtered_connections: []
         };
         this.copyText = this.copyText.bind(this);
+        this.connectionChange = this.connectionChange.bind(this);
+        this.searchChonnection = this.searchConnection.bind(this);
     }
     componentDidMount() {
         this.fetchController = new AbortController();
@@ -34,7 +40,7 @@ class Company extends Component {
                 });
             fetch('http://192.168.1.91:3000/customers/' + this.props.id + '/connections', {signal})
                 .then(   response => response.json())
-                .then(connections => this.setState({ connections }))
+                .then(connections => this.setConnectionState(connections))
                 .catch(error => {
                     if (error.name === 'AbortError') return;
                     throw error;
@@ -46,6 +52,15 @@ class Company extends Component {
                     if (error.name === 'AbortError') return;
                     throw error;
                 });
+    }
+    setConnectionState = (response) => {
+        const connections = response.map(connection => {
+            connection.visibleNotes = false;
+            connection.editmode = '';
+            return connection
+        })
+        const filtered_connections = connections;
+        this.setState({connections, filtered_connections});
     }
     componentWillUnmount() {
         this.fetchController.abort();
@@ -60,6 +75,24 @@ class Company extends Component {
         document.execCommand('copy');
         document.body.removeChild(tempStor)
     }
+    connectionChange = (connectionProperties) => {
+        const connectionID = Object.keys(connectionProperties)[0]
+        let connections = this.state.connections
+        const idx = connections.findIndex(h => h.id == connectionID)
+        connections[idx] = Object.assign(connections[idx], connectionProperties[connectionID])
+        this.setState({connections})
+    }
+    searchConnection = (e) => {
+        const connection_search = e.target.value;
+        let terms = connection_search.toUpperCase().split(' ');
+        const filtered_connections = this.state.connections.filter(conn => {
+            return terms.every(term => {
+                return Object.values(conn).join('').toUpperCase().indexOf(term) > -1;
+            })
+        })
+        this.setState({connection_search, filtered_connections})
+
+    }
     render () {
     return (
       <React.Fragment>
@@ -73,6 +106,7 @@ class Company extends Component {
                   </Card.Header>
                   <Accordion.Collapse eventKey="0">
                       <Card.Body>
+
                           <div className="d-none d-md-flex contact-header row">
                                   <div className="col-sm">Name</div>
                                   <div className="col-sm">Office</div>
@@ -80,7 +114,7 @@ class Company extends Component {
                                   <div className="col-sm">Cell</div>
                                   <div className="col-sm">E-mail</div>
                           </div>
-                          {this.contacts = this.state.contacts.map((contact,key) =>
+                          {this.state.contacts.map((contact,key) =>
                               <div key={"contact" + contact.Id} className="row contact-record">
                                   <div className="col-sm">{contact.ContactName}</div>
                                   <div className="col-sm">{contact.OfficePhone}</div>
@@ -93,34 +127,34 @@ class Company extends Component {
                   </Accordion.Collapse>
               </Card>
               <Card>
-                  <Card.Header>
-                      <Accordion.Toggle as={Button} variant="link" eventKey="1">
-                          Connections
-                      </Accordion.Toggle>
+                  <Card.Header className={"row"}>
+                      <Col sm>
+                          <Accordion.Toggle as={Button} variant="link" eventKey="1">
+                              Connections
+                          </Accordion.Toggle>
+                      </Col>
+                      <Col sm>
+                          <Form.Control type="text" id="connection_search" className={'searchinput'}
+                                        value={this.state.connection_search} onChange={this.searchConnection}/>
+                      </Col>
                   </Card.Header>
                   <Accordion.Collapse eventKey="1">
                       <Card.Body>
+
                           <div className="d-none d-md-flex contact-header row">
                               <div className="col-sm">Type</div>
                               <div className="col-sm">Address</div>
                               <div className="col-sm">User</div>
                               <div className="col-sm">Password</div>
                               <div className="col-sm">Description</div>
+                              <div className={"col-sm"} />
                           </div>
-                          {this.connections = this.state.connections.map((connection,key) =>
-                              <div key={"connection" + connection.ID}>
-                                  <div  className="row contact-record">
-                                      <div className="col-sm">{connection.Type}</div>
-                                      <div className="col-sm"><a href={connection.Address} target="_blank">{connection.Address}</a></div>
-                                      <div className="col-sm"><a href="#" onClick={this.copyText} className={'secret-link'}>{connection.UserId}</a></div>
-                                      <div className="col-sm"><a href="#" onClick={this.copyText} className={'secret-link'}>{connection.Password}</a></div>
-                                      <div className="col-sm">{connection.Description}</div>
-                                  </div>
-                                  <div className={'hidden'}>
-                                      {connection.Notes}
-                                  </div>
-                              </div>
+                          {this.state.filtered_connections.map((connection,key) =>
+                                <Connection {...connection} copyText={this.copyText} key={"connection" + connection.id}
+                                            connectionChange={this.connectionChange} device_types={this.props.device_types}/>
                              )}
+
+
                       </Card.Body>
                   </Accordion.Collapse>
               </Card>
@@ -138,7 +172,7 @@ class Company extends Component {
                               <div className="col-sm">Tech</div>
                               <div className="col-sm">Status</div>
                           </div>
-                          {this.connections = this.state.incidents.map((incident,key) =>
+                          {this.state.incidents.map((incident,key) =>
                               <div key={"incident" + incident.Id} className="row contact-record">
                                   <div className="col-sm">{incident.OpenedDate}</div>
                                   <div className="col-sm">

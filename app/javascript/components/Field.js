@@ -51,7 +51,7 @@ class Field extends Component {
         let hours = response.hours.map(hour => {
             hour.start = this.convertDateTimeto24HourTime(hour.start)
             hour.end = this.convertDateTimeto24HourTime(hour.end)
-            hour.editmode = ''
+            hour.editmode = '';
             return hour
         })
         let techheader = response.techheader
