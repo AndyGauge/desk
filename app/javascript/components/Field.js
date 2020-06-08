@@ -34,7 +34,7 @@ class Field extends Component {
         this.fetchController = new AbortController();
         const signal = this.fetchController.signal;
         let workdate = this.state.workdate ? this.state.workdate : new Date();
-        fetch('http://192.168.1.91:3000/hours/' + this.props.tech + '/dated/' + this.getWorkdateISODate(workdate), {signal})
+        fetch('/hours/' + this.props.tech + '/dated/' + this.getWorkdateISODate(workdate), {signal})
             .then(   response => response.json())
             .then(   hours => this.setHourState(hours))
             .catch(error => {

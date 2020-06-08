@@ -74,7 +74,7 @@ class Connection extends Component {
         if (this.props.notes) {
             formData.append('connection[notes]', this.props.notes);
         }
-        fetch('http://192.168.1.91:3000/connections/'+this.props.id, {
+        fetch('/connections/'+this.props.id, {
             method: 'POST',
             body: formData
         }).then(response => {this.handleUpdate(response.status < 400)})
