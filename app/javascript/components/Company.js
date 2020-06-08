@@ -1,13 +1,25 @@
-import React, { Component} from "react"
+import React, { Component, useContext} from "react"
 import Accordion from 'react-bootstrap/Accordion'
+import AccordionContext from 'react-bootstrap/AccordionContext';
+import {useAccordionToggle} from 'react-bootstrap/AccordionToggle';
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 import Col from 'react-bootstrap/Col'
 import Connection from './Connection.js'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus, faCheck } from '@fortawesome/free-solid-svg-icons'
 import Form from 'react-bootstrap/Form'
 import Modal from 'react-bootstrap/Modal'
 import Row from 'react-bootstrap/Row'
 import PropTypes from "prop-types"
+
+function ConnectionSearchForm(props) {
+    const expandConnection = useContext(AccordionContext) || useAccordionToggle('ConnectionCollapse');
+    return (
+        <Form.Control {...props} onClick={expandConnection} type="text" id="connection_search" className={'searchinput'}/>
+        )
+}
+
 class Company extends Component {
     constructor(props) {
         super(props);
@@ -17,41 +29,44 @@ class Company extends Component {
             connections: [],
             incidents: [],
             calls: [],
-            modalOpen: false,
-            modalClass: '',
-            modalContent: '',
-            modalIncident: '',
+            modalIncident: { open: false },
+            modalConnection: { open: false },
             connection_search: '',
             filtered_connections: []
         };
         this.copyText = this.copyText.bind(this);
         this.connectionChange = this.connectionChange.bind(this);
         this.searchChonnection = this.searchConnection.bind(this);
+        this.handleCreateConnection = this.handleCreateConnection.bind(this);
     }
     componentDidMount() {
         this.fetchController = new AbortController();
         const signal = this.fetchController.signal;
-            fetch('http://192.168.1.91:3000/customers/' + this.props.id + '/contacts', {signal})
+            fetch('/customers/' + this.props.id + '/contacts', {signal})
                 .then(   response => response.json())
                 .then(   contacts => this.setState({ contacts }))
                 .catch(error => {
                     if (error.name === 'AbortError') return;
                     throw error;
                 });
-            fetch('http://192.168.1.91:3000/customers/' + this.props.id + '/connections', {signal})
-                .then(   response => response.json())
-                .then(connections => this.setConnectionState(connections))
-                .catch(error => {
-                    if (error.name === 'AbortError') return;
-                    throw error;
-                });
-            fetch('http://192.168.1.91:3000/customers/' + this.props.id + '/incidents', {signal})
+            this.fetchConnections();
+            fetch('/customers/' + this.props.id + '/incidents', {signal})
                 .then(   response => response.json())
                 .then(  incidents => this.setState({ incidents }))
                 .catch(error => {
                     if (error.name === 'AbortError') return;
                     throw error;
                 });
+    }
+    fetchConnections = () => {
+        const signal = this.fetchController.signal;
+        fetch('/customers/' + this.props.id + '/connections', {signal})
+            .then(   response => response.json())
+            .then(connections => this.setConnectionState(connections))
+            .catch(error => {
+        if (error.name === 'AbortError') return;
+        throw error;
+        });
     }
     setConnectionState = (response) => {
         const connections = response.map(connection => {
@@ -93,6 +108,41 @@ class Company extends Component {
         this.setState({connection_search, filtered_connections})
 
     }
+
+    handleCreateConnection = (e) => {
+        e.preventDefault();
+        const csrf_token = document.head.querySelector("[name~=csrf-token]").content
+        let formData = new FormData();
+        formData.append('authenticity_token', csrf_token);
+        formData.append('_method', 'POST');
+        formData.append('connection[customerid]', this.props.id)
+        formData.append('connection[Device Type]', this.state.modalConnection.deviceType);
+        if (this.state.modalConnection.description) {
+            formData.append('connection[description]', this.state.modalConnection.description);
+        }
+        if (this.state.modalConnection.userName) {
+            formData.append('connection[user id]', this.state.modalConnection.userName);
+        }
+        if (this.state.modalConnection.password) {
+            formData.append('connection[password]', this.state.modalConnection.password);
+
+        }
+        if (this.state.modalConnection.address) {
+            formData.append('connection[address]', this.state.modalConnection.address);
+        }
+        if (this.state.modalConnection.notes) {
+            formData.append('connection[notes]', this.state.modalConnection.notes);
+        }
+        fetch('/connections/', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(json_response => {
+                this.setState({modalConnection: { open: false, description: '', userName: '', password: '', address: '', notes: ''}})
+                this.fetchConnections()
+            })
+    }
     render () {
     return (
       <React.Fragment>
@@ -129,16 +179,20 @@ class Company extends Component {
               <Card>
                   <Card.Header className={"row"}>
                       <Col sm>
-                          <Accordion.Toggle as={Button} variant="link" eventKey="1">
+                          <Accordion.Toggle as={Button} variant="link" eventKey="ConnectionCollapse" >
                               Connections
                           </Accordion.Toggle>
                       </Col>
                       <Col sm>
-                          <Form.Control type="text" id="connection_search" className={'searchinput'}
-                                        value={this.state.connection_search} onChange={this.searchConnection}/>
+                          <Button variant="primary" className="text-left" onClick={() => this.setState({modalConnection: { open: true, description: '', userName: '', password: '', address: '', notes: '' }})}>
+                              <FontAwesomeIcon icon={faPlus} /> New
+                          </Button>
+                      </Col>
+                      <Col sm>
+                          <ConnectionSearchForm value={this.state.connection_search} onChange={this.searchConnection}/>
                       </Col>
                   </Card.Header>
-                  <Accordion.Collapse eventKey="1">
+                  <Accordion.Collapse eventKey="ConnectionCollapse">
                       <Card.Body>
 
                           <div className="d-none d-md-flex contact-header row">
@@ -176,7 +230,7 @@ class Company extends Component {
                               <div key={"incident" + incident.Id} className="row contact-record">
                                   <div className="col-sm">{incident.OpenedDate}</div>
                                   <div className="col-sm">
-                                      <Button variant="link" className="text-left" onClick={() => this.setState({ modalClass: 'Incident', modalContent: this.render_incident(incident), modalOpen: true })}>{incident.Title}</Button>
+                                      <Button variant="link" className="text-left" onClick={() => this.setState({ modalClass: 'Incident', modalContent: this.render_incident(incident), modalOpen: true, modalIncident: {...incident, open: true }})}>{incident.Title}</Button>
                                   </div>
                                   <div className="col-sm">{incident.Tech}</div>
                                   <div className="col-sm">{incident.Status}</div>
@@ -186,22 +240,74 @@ class Company extends Component {
                   </Accordion.Collapse>
               </Card>
           </Accordion>
+          <Modal show = {this.state.modalConnection.open} size={"lg"} centered >
+              <Form onSubmit={this.handleCreateConnection}>
+              <Modal.Header>
+                  <Modal.Title id ="customer-connection-modal-title">
+                      {this.props.company} New Connection
+                  </Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+
+                      <Form.Group controlId={"connectionDeviceType"}>
+                          <Form.Label>Device Type</Form.Label>
+                          <Form.Control as={"select"}
+                                        onChange={(e) => {const modalConnection = this.state.modalConnection; modalConnection.deviceType= e.target.value; this.setState({modalConnection})}}
+                                        value={this.state.modalConnection.deviceType }>
+                              {this.props.device_types.map((device_type) =>
+                                  <option value={device_type} key={'device' + device_type}>{device_type}</option>)}
+                          </Form.Control>
+                      </Form.Group>
+                      <Form.Group controlId={"connectionDescription"}>
+                          <Form.Label>Description</Form.Label>
+                          <Form.Control placeholder={"Describe New Secret"} onChange={(e) => {const modalConnection = this.state.modalConnection; modalConnection.description= e.target.value; this.setState({modalConnection})}}
+                                        value={this.state.modalConnection.description } />
+                      </Form.Group>
+                      <Form.Group controlId={"connectionUserName"}>
+                          <Form.Label>User Name</Form.Label>
+                          <Form.Control placeholder={"admin@"+this.props.company.replace(/\s+/g, '').toLowerCase()+".com"} onChange={(e) => {const modalConnection = this.state.modalConnection; modalConnection.userName= e.target.value; this.setState({modalConnection})}}
+                                        value={this.state.modalConnection.userName } />
+                      </Form.Group>
+                      <Form.Group controlId={"connectionPassword"}>
+                          <Form.Label>Password</Form.Label>
+                          <Form.Control placeholder={"******"} onChange={(e) => {const modalConnection = this.state.modalConnection; modalConnection.password= e.target.value; this.setState({modalConnection})}}
+                                        value={this.state.modalConnection.password } />
+                      </Form.Group>
+                      <Form.Group controlId={"connectionAddress"}>
+                          <Form.Label>Address</Form.Label>
+                          <Form.Control placeholder={"https://"} onChange={(e) => {const modalConnection = this.state.modalConnection; modalConnection.address= e.target.value; this.setState({modalConnection})}}
+                                        value={this.state.modalConnection.address } />
+                      </Form.Group>
+                      <Form.Group>
+                          <Form.Label>Notes</Form.Label>
+                          <Form.Control as={"textarea"} rows={"3"} onChange={(e) => {const modalConnection = this.state.modalConnection; modalConnection.notes= e.target.value; this.setState({modalConnection})}}
+                                        value={this.state.modalConnection.notes } />
+                      </Form.Group>
+
+              </Modal.Body>
+              <Modal.Footer>
+                  <Button variant={"primary"} type="submit">Add</Button>
+                  <Button onClick={() => {const modalConnection = this.state.modalConnection; modalConnection.open = false; this.setState({modalConnection})}}>Close</Button>
+              </Modal.Footer>
+              </Form>
+          </Modal>
+
           <Modal
-              show={this.state.modalOpen}
+              show={this.state.modalIncident.open}
               size="lg"
               aria-labelledby="customer-modal-title"
               centered
           >
               <Modal.Header>
                   <Modal.Title id="customer-modal-title">
-                      {this.props.company} {this.state.modalClass}
+                      {this.props.company} Incident
                   </Modal.Title>
               </Modal.Header>
               <Modal.Body>
                   <Row>
                       <Col>{this.state.modalIncident.Title}</Col>
-                      <Col>Opened</Col>
-                      <Col>Closed</Col>
+                      <Col><strong>Opened</strong></Col>
+                      <Col><strong>Closed</strong></Col>
                   </Row>
                   <Row>
                       <Col>{this.state.modalIncident.Status}</Col>
@@ -209,15 +315,15 @@ class Company extends Component {
                       <Col>{this.state.modalIncident.ClosedDate}</Col>
                   </Row>
                   <Row>
-                      <Col>Contact</Col>
+                      <Col><strong>Contact</strong></Col>
                       <Col>{this.state.modalIncident.Contact}</Col>
                   </Row>
                   <Row>
-                      <Col>Problem</Col>
+                      <Col><strong>Problem</strong></Col>
                       <Col>{this.state.modalIncident.Problem}</Col>
                   </Row>
                   <Row>
-                      <Col>Solution</Col>
+                      <Col><strong>Solution</strong></Col>
                       <Col>{this.state.modalIncident.Solution}</Col>
                   </Row>
                   {this.state.calls.map((callEvent, key) =>
@@ -237,7 +343,7 @@ class Company extends Component {
                       )}
               </Modal.Body>
               <Modal.Footer>
-                  <Button onClick={() => this.setState({modalOpen: false})}>Close</Button>
+                  <Button onClick={() => this.setState({modalIncident: {open: false}})}>Close</Button>
               </Modal.Footer>
           </Modal>
       </React.Fragment>
@@ -245,7 +351,7 @@ class Company extends Component {
   }
     render_incident = (incident) => {
         const signal = this.fetchController.signal;
-        fetch('http://192.168.1.91:3000/incidents/' + incident.Id + '/events', {signal})
+        fetch('/incidents/' + incident.Id + '/events', {signal})
             .then(   response => response.json())
             .then(calls => this.setState({calls}))
             .catch(error => {

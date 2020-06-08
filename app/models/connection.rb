@@ -15,6 +15,7 @@ class Connection < Sequel::Model(Desk::DataSource.cdesk[:connections].select(:id
 		self[:password] = params[:password] if params[:password]
 		self[:address] = params[:address] if params[:address]
 		self[:notes] = params[:notes] if params[:notes]
+		self[:customerid] = params[:customerid] if params[:customerid]
 	end
 
 end
