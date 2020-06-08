@@ -63,7 +63,7 @@ class CustomersController < ApplicationController
   end
 
   def contacts
-    render json: FetchContactsService.new.by_customer(@customer.id)
+    render json: @customer.contacts
   end
 
   def connections
