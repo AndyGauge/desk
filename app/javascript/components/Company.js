@@ -235,8 +235,12 @@ class Company extends Component {
     }
     setContactsState = (response) => {
         const contacts = response.map(contact => {
-            const index = contact["e-mail"].indexOf("#")
-            contact.email = (index > 0) ? contact["e-mail"].substring(0, index) : contact["e-mail"]
+            if (contact["e-mail"]) {
+                const index = contact["e-mail"].indexOf("#")
+                contact.email = (index > 0) ? contact["e-mail"].substring(0, index) : contact["e-mail"]
+            } else {
+                contact.email=''
+            }
             return contact
         })
         this.setState({contacts})
