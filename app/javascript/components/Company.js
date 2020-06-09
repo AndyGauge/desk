@@ -14,10 +14,160 @@ import Row from 'react-bootstrap/Row'
 import PropTypes from "prop-types"
 
 function ConnectionSearchForm(props) {
-    const expandConnection = useContext(AccordionContext) || useAccordionToggle('ConnectionCollapse');
+    const expandConnection = useContext(AccordionContext) ? () => void 0 : useAccordionToggle('ConnectionCollapse');
     return (
         <Form.Control {...props} onClick={expandConnection} type="text" id="connection_search" className={'searchinput'}/>
         )
+}
+
+function ModalIncident(props) {
+    return (
+        <Modal
+            show={props.open}
+            size="lg"
+            aria-labelledby="customer-modal-title"
+            centered
+        >
+            <Modal.Header>
+                <Modal.Title id="customer-modal-title">
+                    {props.company} Incident
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Row>
+                    <Col>{props.Title}</Col>
+                    <Col><strong>Opened</strong></Col>
+                    <Col><strong>Closed</strong></Col>
+                </Row>
+                <Row>
+                    <Col>{props.Status}</Col>
+                    <Col>{props.OpenedDate}</Col>
+                    <Col>{props.ClosedDate}</Col>
+                </Row>
+                <Row>
+                    <Col><strong>Contact</strong></Col>
+                    <Col>{props.Contact}</Col>
+                </Row>
+                <Row>
+                    <Col><strong>Problem</strong></Col>
+                    <Col>{props.Problem}</Col>
+                </Row>
+                <Row>
+                    <Col><strong>Solution</strong></Col>
+                    <Col>{props.Solution}</Col>
+                </Row>
+                {props.calls.map((callEvent, key) =>
+                    <Row key={"event" + callEvent.Id}>
+                        <div className="col-md-10 offset-md-1 incident-grid">
+                            <Row>
+                                <Col>{callEvent.cdTech}</Col>
+                                <Col>{callEvent.CallTime}</Col>
+                                <Col>{callEvent.Minutes}  Minutes</Col>
+                                <Col>{callEvent.Action}</Col>
+                            </Row>
+                            <Row>
+                                <Col>{callEvent.Notes}</Col>
+                            </Row>
+                        </div>
+                    </Row>
+                )}
+            </Modal.Body>
+            <Modal.Footer>
+                <Button onClick={props.closeHandler}>Close</Button>
+            </Modal.Footer>
+        </Modal>
+    )
+}
+
+function ModalFormField(props) {
+    return (
+        <Form.Group controlId={props.attribute}>
+            <Form.Label>{props.label}</Form.Label>
+            <Form.Control placeholder={props.placeholder} onChange={(e) => {props.changeHandler({[props.attribute]: e.target.value})}} value={props.value } />
+        </Form.Group>
+    )
+}
+
+function ModalCreateConnection(props) {
+    const company = props.company || ''
+    return (
+        <Modal show = {props.open} size={"lg"} centered >
+            <Form onSubmit={props.handleCreateConnection}>
+                <Modal.Header>
+                    <Modal.Title id ="customer-connection-modal-title">
+                        {props.company} New Connection
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+
+                    <Form.Group controlId={"connectionDeviceType"}>
+                        <Form.Label>Device Type</Form.Label>
+                        <Form.Control as={"select"}
+                                      onChange={(e) => {props.setConnection({deviceType: e.target.value})}}
+                                      value={props.deviceType }>
+                            {props.device_types.map((device_type) =>
+                                <option value={device_type} key={'device' + device_type}>{device_type}</option>)}
+                        </Form.Control>
+                    </Form.Group>
+                    <Form.Group controlId={"connectionDescription"}>
+                        <Form.Label>Description</Form.Label>
+                        <Form.Control placeholder={"Describe New Secret"} onChange={(e) => {props.setConnection({description: e.target.value})}}
+                                      value={props.description } />
+                    </Form.Group>
+                    <Form.Group controlId={"connectionUserName"}>
+                        <Form.Label>User Name</Form.Label>
+                        <Form.Control placeholder={"admin@"+company.replace(/\s+/g, '').toLowerCase()+".com"} onChange={(e) => {props.setConnection({userName: e.target.value})}}
+                                      value={props.userName } />
+                    </Form.Group>
+                    <Form.Group controlId={"connectionPassword"}>
+                        <Form.Label>Password</Form.Label>
+                        <Form.Control placeholder={"******"} onChange={(e) => {props.setConnection({password: e.target.value})}}
+                                      value={props.password } />
+                    </Form.Group>
+                    <Form.Group controlId={"connectionAddress"}>
+                        <Form.Label>Address</Form.Label>
+                        <Form.Control placeholder={"https://"} onChange={(e) => {props.setConnection({address: e.target.value})}}
+                                      value={props.address } />
+                    </Form.Group>
+                    <Form.Group>
+                        <Form.Label>Notes</Form.Label>
+                        <Form.Control as={"textarea"} rows={"3"} onChange={(e) => {props.setConnection({notes:e.target.value})}}
+                                      value={props.notes } />
+                    </Form.Group>
+
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant={"primary"} type="submit">Add</Button>
+                    <Button onClick={() => {props.setConnection({open: false})}}>Close</Button>
+                </Modal.Footer>
+            </Form>
+        </Modal>
+    )
+}
+
+function ModalCreateContact(props) {
+    return (
+        <Modal show = {props.open} size={"lg"} centered >
+            <Form onSubmit={props.handleCreateContact}>
+                <Modal.Header>
+                    <Modal.Title id ="customer-contact-modal-title">
+                        New {props.company} Contact
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                <ModalFormField label='Name' attribute={'ContactName'} placeholder={"First Last"} value={props.ContactName} changeHandler={props.setContact}/>
+                <ModalFormField label='Office Phone' attribute={'OfficePhone'} placeholder={'(XXX) XXX-XXXX'} value={props.OfficePhone} changeHandler={props.setContact} />
+                <ModalFormField label='Office Extension' attribute={'OfficeExtension'} placeholder={'XXXX'} value={props.OfficeExtension} changeHandler={props.setContact} />
+                <ModalFormField label='Cell Phone' attribute={'CellPhone'} placeholder={'(XXX) XXX-XXXX'} value={props.CellPhone} changeHandler={props.setContact} />
+                <ModalFormField label='E Mail' attribute={'email'} placeholder={'whomever@company.com'} value={props.email} changeHandler={props.setContact} />
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant={"primary"} type="submit">Add</Button>
+                    <Button onClick={() => {props.setContact({open: false})}}>Close</Button>
+                </Modal.Footer>
+            </Form>
+        </Modal>
+    )
 }
 
 class Company extends Component {
@@ -31,6 +181,7 @@ class Company extends Component {
             calls: [],
             modalIncident: { open: false },
             modalConnection: { open: false },
+            modalContact: {open: false},
             connection_search: '',
             filtered_connections: []
         };
@@ -38,17 +189,12 @@ class Company extends Component {
         this.connectionChange = this.connectionChange.bind(this);
         this.searchChonnection = this.searchConnection.bind(this);
         this.handleCreateConnection = this.handleCreateConnection.bind(this);
+        this.handleCreateContact = this.handleCreateContact.bind(this);
     }
     componentDidMount() {
         this.fetchController = new AbortController();
         const signal = this.fetchController.signal;
-            fetch('/customers/' + this.props.id + '/contacts', {signal})
-                .then(   response => response.json())
-                .then(   contacts => this.setState({ contacts }))
-                .catch(error => {
-                    if (error.name === 'AbortError') return;
-                    throw error;
-                });
+            this.fetchContacts();
             this.fetchConnections();
             fetch('/customers/' + this.props.id + '/incidents', {signal})
                 .then(   response => response.json())
@@ -57,6 +203,16 @@ class Company extends Component {
                     if (error.name === 'AbortError') return;
                     throw error;
                 });
+    }
+    fetchContacts = () => {
+        const signal = this.fetchController.signal;
+        fetch('/customers/' + this.props.id + '/contacts', {signal})
+            .then(response => response.json())
+            .then(contacts => this.setContactsState(contacts))
+            .catch(error => {
+                if (error.name === 'AbortError') return;
+                throw error;
+            });
     }
     fetchConnections = () => {
         const signal = this.fetchController.signal;
@@ -77,13 +233,24 @@ class Company extends Component {
         const filtered_connections = connections;
         this.setState({connections, filtered_connections});
     }
+    setContactsState = (response) => {
+        const contacts = response.map(contact => {
+            if (contact["e-mail"]) {
+                const index = contact["e-mail"].indexOf("#")
+                contact.email = (index > 0) ? contact["e-mail"].substring(0, index) : contact["e-mail"]
+            } else {
+                contact.email=''
+            }
+            return contact
+        })
+        this.setState({contacts})
+    }
     componentWillUnmount() {
         this.fetchController.abort();
     }
     copyText = (e) => {
         e.preventDefault()
         const tempStor = document.createElement('textarea');
-        console.log(e.target)
         tempStor.value = e.target.text
         document.body.appendChild(tempStor);
         tempStor.select();
@@ -108,13 +275,23 @@ class Company extends Component {
         this.setState({connection_search, filtered_connections})
 
     }
-
-    handleCreateConnection = (e) => {
-        e.preventDefault();
+    handleModalConnectionUpdate = (property) => {
+        const modalConnection = Object.assign(this.state.modalConnection, property)
+        this.setState(modalConnection)
+    }
+    handleModalContactUpdate = (property) => {
+        const modalContact = Object.assign(this.state.modalContact, property)
+        this.setState(modalContact)
+    }
+    setupFormData = (formData) => {
         const csrf_token = document.head.querySelector("[name~=csrf-token]").content
-        let formData = new FormData();
         formData.append('authenticity_token', csrf_token);
         formData.append('_method', 'POST');
+        return formData
+    }
+    handleCreateConnection = (e) => {
+        e.preventDefault();
+        let formData = this.setupFormData(new FormData);
         formData.append('connection[customerid]', this.props.id)
         formData.append('connection[Device Type]', this.state.modalConnection.deviceType);
         if (this.state.modalConnection.description) {
@@ -143,16 +320,44 @@ class Company extends Component {
                 this.fetchConnections()
             })
     }
+    handleCreateContact = (e) => {
+        e.preventDefault();
+        let formData=this.setupFormData(new FormData);
+        formData.append('contact[customerid]', this.props.id)
+        formData.append('contact[ContactName]', this.state.modalContact.ContactName)
+        formData.append('contact[Office Phone]', this.state.modalContact.OfficePhone)
+        formData.append('contact[Office Extension]', this.state.modalContact.OfficeExtension)
+        formData.append('contact[Cell Phone]', this.state.modalContact.CellPhone)
+        formData.append('contact[e-mail]', this.state.modalContact.email)
+        fetch('/contacts/', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(json_response => {
+                this.setState({modalContact: { open: false, ContactName: '', OfficePhone: '', OfficeExtension: '', CellPhone: '', email: '' }})
+                this.fetchContacts()
+            })
+
+    }
     render () {
     return (
       <React.Fragment>
           <h1>{this.props.company}</h1>
           <Accordion>
               <Card className="card-collapse">
-                  <Card.Header>
-                      <Accordion.Toggle as={Button} variant="link" eventKey="0">
-                          Contacts
-                      </Accordion.Toggle>
+                  <Card.Header className={"row"}>
+                      <Col sm>
+                          <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                              <h5>Contacts</h5>
+                          </Accordion.Toggle>
+                      </Col>
+                      <Col sm>
+                          <Button variant="primary" className="text-left" onClick={() => this.handleModalContactUpdate({open: true, ContactName: '', OfficePhone: '', OfficeExtension: '', CellPhone: '', email: ''})}>
+                              <FontAwesomeIcon icon={faPlus} /> New
+                          </Button>
+                      </Col>
+                      <Col />
                   </Card.Header>
                   <Accordion.Collapse eventKey="0">
                       <Card.Body>
@@ -165,12 +370,12 @@ class Company extends Component {
                                   <div className="col-sm">E-mail</div>
                           </div>
                           {this.state.contacts.map((contact,key) =>
-                              <div key={"contact" + contact.Id} className="row contact-record">
-                                  <div className="col-sm">{contact.ContactName}</div>
-                                  <div className="col-sm">{contact.OfficePhone}</div>
-                                  <div className="col-sm">{contact.OfficeExtension}</div>
-                                  <div className="col-sm">{contact.CellPhone}</div>
-                                  <div className="col-sm">{contact.Email}</div>
+                              <div key={"contact" + contact.id} className="row contact-record">
+                                  <div className="col-sm">{contact.contactname}</div>
+                                  <div className="col-sm"><a href={'tel:'+ contact["office phone"]}>{contact["office phone"]}</a></div>
+                                  <div className="col-sm">{contact["office extension"]}</div>
+                                  <div className="col-sm"><a href={'tel:'+ contact["cell phone"]}>{contact["cell phone"]}</a></div>
+                                  <div className="col-sm"><a href={'mailto:'+ contact.email}>{contact.email}</a></div>
                               </div>
                           )}
                       </Card.Body>
@@ -180,11 +385,11 @@ class Company extends Component {
                   <Card.Header className={"row"}>
                       <Col sm>
                           <Accordion.Toggle as={Button} variant="link" eventKey="ConnectionCollapse" >
-                              Connections
+                              <h5>Connections</h5>
                           </Accordion.Toggle>
                       </Col>
                       <Col sm>
-                          <Button variant="primary" className="text-left" onClick={() => this.setState({modalConnection: { open: true, description: '', userName: '', password: '', address: '', notes: '' }})}>
+                          <Button variant="primary" className="text-left" onClick={() => this.setState({modalConnection: { open: true, description: '', userName: '', password: '', address: '', notes: '', deviceType: '' }})}>
                               <FontAwesomeIcon icon={faPlus} /> New
                           </Button>
                       </Col>
@@ -215,7 +420,7 @@ class Company extends Component {
               <Card>
                   <Card.Header>
                       <Accordion.Toggle as={Button} variant="link" eventKey="2">
-                          Incidents
+                          <h5>Incidents</h5>
                       </Accordion.Toggle>
                   </Card.Header>
                   <Accordion.Collapse eventKey="2">
@@ -240,112 +445,18 @@ class Company extends Component {
                   </Accordion.Collapse>
               </Card>
           </Accordion>
-          <Modal show = {this.state.modalConnection.open} size={"lg"} centered >
-              <Form onSubmit={this.handleCreateConnection}>
-              <Modal.Header>
-                  <Modal.Title id ="customer-connection-modal-title">
-                      {this.props.company} New Connection
-                  </Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
 
-                      <Form.Group controlId={"connectionDeviceType"}>
-                          <Form.Label>Device Type</Form.Label>
-                          <Form.Control as={"select"}
-                                        onChange={(e) => {const modalConnection = this.state.modalConnection; modalConnection.deviceType= e.target.value; this.setState({modalConnection})}}
-                                        value={this.state.modalConnection.deviceType }>
-                              {this.props.device_types.map((device_type) =>
-                                  <option value={device_type} key={'device' + device_type}>{device_type}</option>)}
-                          </Form.Control>
-                      </Form.Group>
-                      <Form.Group controlId={"connectionDescription"}>
-                          <Form.Label>Description</Form.Label>
-                          <Form.Control placeholder={"Describe New Secret"} onChange={(e) => {const modalConnection = this.state.modalConnection; modalConnection.description= e.target.value; this.setState({modalConnection})}}
-                                        value={this.state.modalConnection.description } />
-                      </Form.Group>
-                      <Form.Group controlId={"connectionUserName"}>
-                          <Form.Label>User Name</Form.Label>
-                          <Form.Control placeholder={"admin@"+this.props.company.replace(/\s+/g, '').toLowerCase()+".com"} onChange={(e) => {const modalConnection = this.state.modalConnection; modalConnection.userName= e.target.value; this.setState({modalConnection})}}
-                                        value={this.state.modalConnection.userName } />
-                      </Form.Group>
-                      <Form.Group controlId={"connectionPassword"}>
-                          <Form.Label>Password</Form.Label>
-                          <Form.Control placeholder={"******"} onChange={(e) => {const modalConnection = this.state.modalConnection; modalConnection.password= e.target.value; this.setState({modalConnection})}}
-                                        value={this.state.modalConnection.password } />
-                      </Form.Group>
-                      <Form.Group controlId={"connectionAddress"}>
-                          <Form.Label>Address</Form.Label>
-                          <Form.Control placeholder={"https://"} onChange={(e) => {const modalConnection = this.state.modalConnection; modalConnection.address= e.target.value; this.setState({modalConnection})}}
-                                        value={this.state.modalConnection.address } />
-                      </Form.Group>
-                      <Form.Group>
-                          <Form.Label>Notes</Form.Label>
-                          <Form.Control as={"textarea"} rows={"3"} onChange={(e) => {const modalConnection = this.state.modalConnection; modalConnection.notes= e.target.value; this.setState({modalConnection})}}
-                                        value={this.state.modalConnection.notes } />
-                      </Form.Group>
+          <ModalCreateConnection {...this.state.modalConnection} setConnection={this.handleModalConnectionUpdate}
+                                 handleCreateConnection={this.handleCreateConnection} company={this.props.company}
+                                 device_types={this.props.device_types}
+          />
+          <ModalCreateContact {...this.state.modalContact} setContact={this.handleModalContactUpdate}
+                              company={this.props.company} handleCreateContact={this.handleCreateContact}
+           />
+          <ModalIncident {...this.state.modalIncident} company={this.props.company} calls={this.state.calls}
+                         closeHandler={() => this.setState({modalIncident: {open: false}})}
+          />
 
-              </Modal.Body>
-              <Modal.Footer>
-                  <Button variant={"primary"} type="submit">Add</Button>
-                  <Button onClick={() => {const modalConnection = this.state.modalConnection; modalConnection.open = false; this.setState({modalConnection})}}>Close</Button>
-              </Modal.Footer>
-              </Form>
-          </Modal>
-
-          <Modal
-              show={this.state.modalIncident.open}
-              size="lg"
-              aria-labelledby="customer-modal-title"
-              centered
-          >
-              <Modal.Header>
-                  <Modal.Title id="customer-modal-title">
-                      {this.props.company} Incident
-                  </Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                  <Row>
-                      <Col>{this.state.modalIncident.Title}</Col>
-                      <Col><strong>Opened</strong></Col>
-                      <Col><strong>Closed</strong></Col>
-                  </Row>
-                  <Row>
-                      <Col>{this.state.modalIncident.Status}</Col>
-                      <Col>{this.state.modalIncident.OpenedDate}</Col>
-                      <Col>{this.state.modalIncident.ClosedDate}</Col>
-                  </Row>
-                  <Row>
-                      <Col><strong>Contact</strong></Col>
-                      <Col>{this.state.modalIncident.Contact}</Col>
-                  </Row>
-                  <Row>
-                      <Col><strong>Problem</strong></Col>
-                      <Col>{this.state.modalIncident.Problem}</Col>
-                  </Row>
-                  <Row>
-                      <Col><strong>Solution</strong></Col>
-                      <Col>{this.state.modalIncident.Solution}</Col>
-                  </Row>
-                  {this.state.calls.map((callEvent, key) =>
-                      <Row key={"event" + callEvent.Id}>
-                          <div className="col-md-10 offset-md-1 incident-grid">
-                              <Row>
-                                  <Col>{callEvent.cdTech}</Col>
-                                  <Col>{callEvent.CallTime}</Col>
-                                  <Col>{callEvent.Minutes}  Minutes</Col>
-                                  <Col>{callEvent.Action}</Col>
-                              </Row>
-                              <Row>
-                                  <Col>{callEvent.Notes}</Col>
-                              </Row>
-                          </div>
-                      </Row>
-                      )}
-              </Modal.Body>
-              <Modal.Footer>
-                  <Button onClick={() => this.setState({modalIncident: {open: false}})}>Close</Button>
-              </Modal.Footer>
-          </Modal>
       </React.Fragment>
     );
   }
