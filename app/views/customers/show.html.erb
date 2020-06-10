@@ -1,6 +1,6 @@
 <p id="notice"><%= notice %></p>
 
-<%= react_component 'Company', @customer.values.merge(device_types: @device_types) %>
+<%= react_component 'Company', @customer.values.merge(device_types: @device_types).merge(actions: @actions) %>
 
 <%= link_to 'Edit', edit_customer_path(@customer) %> |
 <%= link_to 'Back', customers_path %>

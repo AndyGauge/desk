@@ -6,9 +6,12 @@ class FetchIncidentsService < FetchFromCdeskService
       ,[Title]
 	    ,CONCAT([Employees].[First Name], ' ', [Employees].[Last Name]) AS Tech
       ,CONVERT(varchar,[Opened Date],23) AS OpenedDate
+			,(select sum(c.minutes) from (Select minutes from Calls where casenum=incidents.id) c) AS Total
       ,[Contact]
       ,[Problem Description] AS Problem
+			,[problem Code] AS pcode
       ,[Solution Description] AS Solution
+			,[solution Code] as scode
       ,[Status]
       ,[Source]
       ,[Priority]

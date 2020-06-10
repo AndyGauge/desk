@@ -1,7 +1,20 @@
 class IncidentsController < ApplicationController
 
   def events
-    render json: FetchEventsService.new.by_incident(params[:id])
+    render json: Incident[params[:id]].calls
+  end
+
+  def create
+    incident = Incident.new
+    incident.set_from_params params[:incident]
+    incident['Assigned To'.to_sym] = current_user.employee_id
+    incident.save_changes
+    call = Call.new(incident: incident)
+    call.set_from_params params[:call]
+    call["Call Time"] = Time.now
+    call[:cdTech] = current_user.tech
+    call.save_changes
+    render json: incident
   end
 
   private

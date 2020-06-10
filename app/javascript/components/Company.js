@@ -7,7 +7,7 @@ import Card from 'react-bootstrap/Card'
 import Col from 'react-bootstrap/Col'
 import Connection from './Connection.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faCheck } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faPlusCircle } from '@fortawesome/free-solid-svg-icons'
 import Form from 'react-bootstrap/Form'
 import Modal from 'react-bootstrap/Modal'
 import Row from 'react-bootstrap/Row'
@@ -30,46 +30,53 @@ function ModalIncident(props) {
         >
             <Modal.Header>
                 <Modal.Title id="customer-modal-title">
-                    {props.company} Incident
+                    {props.Title}
                 </Modal.Title>
+                <span>{props.Total} minutes</span>
             </Modal.Header>
             <Modal.Body>
                 <Row>
-                    <Col>{props.Title}</Col>
                     <Col><strong>Opened</strong></Col>
-                    <Col><strong>Closed</strong></Col>
-                </Row>
-                <Row>
-                    <Col>{props.Status}</Col>
                     <Col>{props.OpenedDate}</Col>
+                    <Col><strong>Closed</strong></Col>
                     <Col>{props.ClosedDate}</Col>
                 </Row>
                 <Row>
+                    <Col><strong>Status</strong></Col>
+                    <Col>{props.Status}</Col>
                     <Col><strong>Contact</strong></Col>
                     <Col>{props.Contact}</Col>
                 </Row>
                 <Row>
                     <Col><strong>Problem</strong></Col>
-                    <Col>{props.Problem}</Col>
+                    <Col>{props.pcode}</Col>
+                    <Col><strong>Solution</strong></Col>
+                    <Col>{props.scode}</Col>
                 </Row>
                 <Row>
-                    <Col><strong>Solution</strong></Col>
+                    <Col>{props.Problem}</Col>
                     <Col>{props.Solution}</Col>
                 </Row>
+                <Row style={{paddingTop:20}}>
+                    <Col><strong>Tech</strong></Col>
+                    <Col><strong>Date</strong></Col>
+                    <Col><strong>Minutes</strong></Col>
+                    <Col><strong>Action</strong></Col>
+                </Row>
                 {props.calls.map((callEvent, key) =>
-                    <Row key={"event" + callEvent.Id}>
-                        <div className="col-md-10 offset-md-1 incident-grid">
-                            <Row>
-                                <Col>{callEvent.cdTech}</Col>
-                                <Col>{callEvent.CallTime}</Col>
-                                <Col>{callEvent.Minutes}  Minutes</Col>
-                                <Col>{callEvent.Action}</Col>
-                            </Row>
-                            <Row>
-                                <Col>{callEvent.Notes}</Col>
-                            </Row>
-                        </div>
-                    </Row>
+
+                    <div className="incident-grid" key={"event" + callEvent.id}>
+                        <Row>
+                            <Col>{callEvent.cdtech}</Col>
+                            <Col>{new Date(callEvent["call time"]).toLocaleDateString('en-us')}</Col>
+                            <Col>{callEvent.minutes}</Col>
+                            <Col>{callEvent.action}</Col>
+                        </Row>
+                        <Row>
+                            <Col><p style={{paddingLeft:5}}>{callEvent.notes}</p></Col>
+                        </Row>
+                    </div>
+
                 )}
             </Modal.Body>
             <Modal.Footer>
@@ -83,7 +90,7 @@ function ModalFormField(props) {
     return (
         <Form.Group controlId={props.attribute}>
             <Form.Label>{props.label}</Form.Label>
-            <Form.Control placeholder={props.placeholder} onChange={(e) => {props.changeHandler({[props.attribute]: e.target.value})}} value={props.value } />
+            <Form.Control {...props.controlAttributes} placeholder={props.placeholder} onChange={(e) => {props.changeHandler({[props.attribute]: e.target.value})}} value={props.value } />
         </Form.Group>
     )
 }
@@ -170,6 +177,38 @@ function ModalCreateContact(props) {
     )
 }
 
+function ModalCreateIncident(props) {
+    return (
+        <Modal show = {props.open} size={"lg"} centered >
+            <Form onSubmit={props.handleCreateIncident}>
+                <Modal.Header>
+                    <Modal.Title id ="customer-incident-modal-title">
+                        New Incident: {props.ContactName}
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <ModalFormField label='Title' attribute={'Title'} placeholder={"New Incident"} value={props.Title} changeHandler={props.setIncident}/>
+                    <Form.Group controlId={"incidentAction"}>
+                        <Form.Label>Action</Form.Label>
+                        <Form.Control as={"select"}
+                                      onChange={(e) => {props.setIncident({Action: e.target.value})}}
+                                      value={props.Action }>
+                            {props.actions.map((action) =>
+                                <option value={action} key={'action' + action}>{action}</option>)}
+                        </Form.Control>
+                    </Form.Group>
+                    <ModalFormField label='notes' attribute={'Notes'} placeholder={"..."} value={props.Notes} changeHandler={props.setIncident} controlAttributes={{as:"textarea", rows:"3"}}/>
+                    <ModalFormField label='minutes' attribute={'Minutes'} placeholder={"15"} value={props.Minutes} changeHandler={props.setIncident}/>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant={"primary"} type="submit">Add</Button>
+                    <Button onClick={() => {props.setIncident({open: false})}}>Close</Button>
+                </Modal.Footer>
+            </Form>
+        </Modal>
+    )
+}
+
 class Company extends Component {
     constructor(props) {
         super(props);
@@ -180,6 +219,7 @@ class Company extends Component {
             incidents: [],
             calls: [],
             modalIncident: { open: false },
+            modalCreateIncident: { open: false },
             modalConnection: { open: false },
             modalContact: {open: false},
             connection_search: '',
@@ -190,19 +230,14 @@ class Company extends Component {
         this.searchChonnection = this.searchConnection.bind(this);
         this.handleCreateConnection = this.handleCreateConnection.bind(this);
         this.handleCreateContact = this.handleCreateContact.bind(this);
+        this.handleCreateIncident = this.handleCreateIncident.bind(this);
     }
     componentDidMount() {
         this.fetchController = new AbortController();
-        const signal = this.fetchController.signal;
-            this.fetchContacts();
-            this.fetchConnections();
-            fetch('/customers/' + this.props.id + '/incidents', {signal})
-                .then(   response => response.json())
-                .then(  incidents => this.setState({ incidents }))
-                .catch(error => {
-                    if (error.name === 'AbortError') return;
-                    throw error;
-                });
+        this.fetchContacts();
+        this.fetchConnections();
+        this.fetchIncidents();
+
     }
     fetchContacts = () => {
         const signal = this.fetchController.signal;
@@ -223,6 +258,16 @@ class Company extends Component {
         if (error.name === 'AbortError') return;
         throw error;
         });
+    }
+    fetchIncidents = () => {
+        const signal = this.fetchController.signal;
+        fetch('/customers/' + this.props.id + '/incidents', {signal})
+            .then(   response => response.json())
+            .then(  incidents => this.setState({ incidents }))
+            .catch(error => {
+                if (error.name === 'AbortError') return;
+                throw error;
+            });
     }
     setConnectionState = (response) => {
         const connections = response.map(connection => {
@@ -283,6 +328,10 @@ class Company extends Component {
         const modalContact = Object.assign(this.state.modalContact, property)
         this.setState(modalContact)
     }
+    handleModalIncidentUpdate = (property) => {
+        const modalCreateIncident = Object.assign(this.state.modalCreateIncident, property)
+        this.setState(modalCreateIncident)
+    }
     setupFormData = (formData) => {
         const csrf_token = document.head.querySelector("[name~=csrf-token]").content
         formData.append('authenticity_token', csrf_token);
@@ -340,6 +389,27 @@ class Company extends Component {
             })
 
     }
+    handleCreateIncident = (e) => {
+        e.preventDefault();
+        let formData=this.setupFormData(new FormData);
+        formData.append('incident[Customer]', this.props.id)
+        formData.append('incident[Contact]', this.state.modalCreateIncident.ContactName)
+        formData.append('incident[Title]', this.state.modalCreateIncident.Title)
+        formData.append('call[Action]', this.state.modalCreateIncident.Action)
+        formData.append('call[Notes]', this.state.modalCreateIncident.Notes)
+        formData.append('call[Minutes]', this.state.modalCreateIncident.Minutes)
+        fetch('/incidents/', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(json_response => {
+                this.setState({modalCreateIncident: { open: false }})
+                this.fetchContacts()
+            })
+
+    }
+
     render () {
     return (
       <React.Fragment>
@@ -347,13 +417,12 @@ class Company extends Component {
           <Accordion>
               <Card className="card-collapse">
                   <Card.Header className={"row"}>
-                      <Col sm>
+                      <Col sm={6}>
                           <Accordion.Toggle as={Button} variant="link" eventKey="0">
                               <h5>Contacts</h5>
                           </Accordion.Toggle>
-                      </Col>
-                      <Col sm>
-                          <Button variant="primary" className="text-left" onClick={() => this.handleModalContactUpdate({open: true, ContactName: '', OfficePhone: '', OfficeExtension: '', CellPhone: '', email: ''})}>
+                          <Button variant="primary" className="text-left" style={{float:'right'}}
+                                  onClick={() => this.handleModalContactUpdate({open: true, ContactName: '', OfficePhone: '', OfficeExtension: '', CellPhone: '', email: ''})}>
                               <FontAwesomeIcon icon={faPlus} /> New
                           </Button>
                       </Col>
@@ -363,7 +432,10 @@ class Company extends Component {
                       <Card.Body>
 
                           <div className="d-none d-md-flex contact-header row">
-                                  <div className="col-sm">Name</div>
+                                  <div className="col-sm">
+                                      <span>Name</span>
+
+                                  </div>
                                   <div className="col-sm">Office</div>
                                   <div className="col-sm">Extension</div>
                                   <div className="col-sm">Cell</div>
@@ -371,7 +443,14 @@ class Company extends Component {
                           </div>
                           {this.state.contacts.map((contact,key) =>
                               <div key={"contact" + contact.id} className="row contact-record">
-                                  <div className="col-sm">{contact.contactname}</div>
+                                  <div className="col-sm">
+                                      <Button size={"sm"} variant={"success"}
+                                            onClick={() => {this.handleModalIncidentUpdate({open: true, ContactName: contact.contactname, Title: '', Minutes: '', Notes: '', contactid: contact.id, Action: this.props.actions[0]})}}>
+                                          <FontAwesomeIcon icon={faPlusCircle} />
+                                      </Button>
+                                      <span style={{paddingLeft:8}}>{contact.contactname}</span>
+
+                                  </div>
                                   <div className="col-sm"><a href={'tel:'+ contact["office phone"]}>{contact["office phone"]}</a></div>
                                   <div className="col-sm">{contact["office extension"]}</div>
                                   <div className="col-sm"><a href={'tel:'+ contact["cell phone"]}>{contact["cell phone"]}</a></div>
@@ -383,13 +462,13 @@ class Company extends Component {
               </Card>
               <Card>
                   <Card.Header className={"row"}>
-                      <Col sm>
+                      <Col sm={6}>
                           <Accordion.Toggle as={Button} variant="link" eventKey="ConnectionCollapse" >
                               <h5>Connections</h5>
                           </Accordion.Toggle>
-                      </Col>
-                      <Col sm>
-                          <Button variant="primary" className="text-left" onClick={() => this.setState({modalConnection: { open: true, description: '', userName: '', password: '', address: '', notes: '', deviceType: '' }})}>
+
+                          <Button variant="primary" className="text-left" style={{float: 'right'}}
+                                  onClick={() => this.setState({modalConnection: { open: true, description: '', userName: '', password: '', address: '', notes: '', deviceType: '' }})}>
                               <FontAwesomeIcon icon={faPlus} /> New
                           </Button>
                       </Col>
@@ -453,6 +532,9 @@ class Company extends Component {
           <ModalCreateContact {...this.state.modalContact} setContact={this.handleModalContactUpdate}
                               company={this.props.company} handleCreateContact={this.handleCreateContact}
            />
+          <ModalCreateIncident {...this.state.modalCreateIncident} setIncident={this.handleModalIncidentUpdate}
+                              handleCreateIncident={this.handleCreateIncident} actions={this.props.actions}
+          />
           <ModalIncident {...this.state.modalIncident} company={this.props.company} calls={this.state.calls}
                          closeHandler={() => this.setState({modalIncident: {open: false}})}
           />
