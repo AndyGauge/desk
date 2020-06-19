@@ -10,7 +10,7 @@ class CustomersController < ApplicationController
   # GET /customers/1
   # GET /customers/1.json
   def show
-    set_device_types
+    set_device_types_and_actions
   end
 
   # GET /customers/new
@@ -63,7 +63,7 @@ class CustomersController < ApplicationController
   end
 
   def contacts
-    render json: FetchContactsService.new.by_customer(@customer.id)
+    render json: @customer.contacts
   end
 
   def connections
@@ -85,7 +85,8 @@ class CustomersController < ApplicationController
       params.require(:customer).permit(:company, :contact, :phone, :address, :city, :state, :cdeskid)
     end
 
-  def set_device_types
+  def set_device_types_and_actions
     @device_types =  Desk::DataSource.cdesk[:"lu- Device Type"].all.map{ |type| type[:"device type"]}.sort
+    @actions = Desk::DataSource.cdesk[:"lu- Actions"].all.map{|act| act[:action]}
   end
 end

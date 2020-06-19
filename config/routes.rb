@@ -12,6 +12,7 @@ Rails.application.routes.draw do
 	get '/hours/:tech/dated/:date', to: 'hours#dated', as: 'hours'
 	resources :hours
   resources :connections
+  resources :contacts
 	devise_for :users
   root 'customers#index'
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
