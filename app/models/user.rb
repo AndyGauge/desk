@@ -2,7 +2,7 @@ class User < ApplicationRecord
   require 'net/smtp'
 
   devise :two_factor_authenticatable, :ldap_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+         :recoverable, :rememberable, :validatable, :timeoutable
 
   has_one_time_password(encrypted: true)
 
@@ -32,9 +32,13 @@ class User < ApplicationRecord
     Employee[employee_id]
   end
 
+  def timeout_in
+    30.minutes
+  end
+
   def need_two_factor_authentication?(request)
     true || false
-    # TODO: only enforce technicians
+    # TODO: only enforce CDESK users
   end
 
   def send_two_factor_authentication_code(code)

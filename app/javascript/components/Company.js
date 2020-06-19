@@ -1,22 +1,28 @@
-import React, { Component, useContext} from "react"
-import Accordion from 'react-bootstrap/Accordion'
+import React, { Component, useContext, useRef} from "react";
+import Accordion from 'react-bootstrap/Accordion';
 import AccordionContext from 'react-bootstrap/AccordionContext';
 import {useAccordionToggle} from 'react-bootstrap/AccordionToggle';
-import Button from 'react-bootstrap/Button'
-import Card from 'react-bootstrap/Card'
-import Col from 'react-bootstrap/Col'
-import Connection from './Connection.js'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faPlusCircle } from '@fortawesome/free-solid-svg-icons'
-import Form from 'react-bootstrap/Form'
-import Modal from 'react-bootstrap/Modal'
-import Row from 'react-bootstrap/Row'
-import PropTypes from "prop-types"
+import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
+import Col from 'react-bootstrap/Col';
+import Connection from './Connection.js';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import Form from 'react-bootstrap/Form';
+import IdleTimer from 'react-idle-timer';
+import Modal from 'react-bootstrap/Modal';
+import Row from 'react-bootstrap/Row';
+import PropTypes from "prop-types";
 
 function ConnectionSearchForm(props) {
+    const searchRef = useRef(null)
+    const scrollAndExpandConnection = () => {
+        window.scrollTo(0, searchRef.current.offsetTop)
+        expandConnection()
+    }
     const expandConnection = useContext(AccordionContext) ? () => void 0 : useAccordionToggle('ConnectionCollapse');
     return (
-        <Form.Control {...props} onClick={expandConnection} type="text" id="connection_search" className={'searchinput'}/>
+        <Form.Control {...props} onClick={scrollAndExpandConnection} type="text" id="connection_search" className={'searchinput'} ref={searchRef} />
         )
 }
 
@@ -223,7 +229,7 @@ class Company extends Component {
             modalConnection: { open: false },
             modalContact: {open: false},
             connection_search: '',
-            filtered_connections: []
+            filtered_connections: [],
         };
         this.copyText = this.copyText.bind(this);
         this.connectionChange = this.connectionChange.bind(this);
@@ -231,6 +237,7 @@ class Company extends Component {
         this.handleCreateConnection = this.handleCreateConnection.bind(this);
         this.handleCreateContact = this.handleCreateContact.bind(this);
         this.handleCreateIncident = this.handleCreateIncident.bind(this);
+        this.idleTimer = null
     }
     componentDidMount() {
         this.fetchController = new AbortController();
@@ -413,6 +420,11 @@ class Company extends Component {
     render () {
     return (
       <React.Fragment>
+          <IdleTimer  ref={ref => { this.idleTimer = ref }}
+                      element={document}
+                      onIdle={() => {window.location="/customers"}}
+                      debounce={250}
+                      timeout={1000 * 60 * 15} />
           <h1>{this.props.company}</h1>
           <Accordion>
               <Card className="card-collapse">
@@ -473,7 +485,8 @@ class Company extends Component {
                           </Button>
                       </Col>
                       <Col sm>
-                          <ConnectionSearchForm value={this.state.connection_search} onChange={this.searchConnection}/>
+                          <ConnectionSearchForm value={this.state.connection_search} onChange={this.searchConnection}
+                          onClick={(e) => window.scrollTo(0,e.target.offsetTop)}/>
                       </Col>
                   </Card.Header>
                   <Accordion.Collapse eventKey="ConnectionCollapse">

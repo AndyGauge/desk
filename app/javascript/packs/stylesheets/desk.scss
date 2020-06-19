@@ -105,3 +105,18 @@ span.customer-title {
   padding-bottom: 10px;
   font-weight: 600;
 }
+
+//Date Picker
+.react-date-picker__wrapper {
+  font-size: 1.3rem;
+  width: 100%;
+}
+.react-date-picker__inputGroup {
+  width: 100%;
+  padding: 2px 2px;
+}
+@media (max-width: 576px) {
+  .react-date-picker {
+    width: 100%
+  }
+}
