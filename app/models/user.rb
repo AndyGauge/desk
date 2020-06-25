@@ -8,20 +8,28 @@ class User < ApplicationRecord
 
   validates :username, presence: true, uniqueness: true
 
-  validates_each :employee_id do |record, attr, value|
-    record.errors.add(attr, 'Must belong to Central Desk Employee Table') unless Employee[value]
+  validates_each :tech do |record, attr, value|
+    record.errors.add(attr, 'Must belong to Capture Tech Table') unless Tech[value]
   end
 
   # use ldap uid as primary key
   before_validation do
     employee = Employee.where("E-Mail Address".to_sym => self.email).first
+    tech = Tech.where(:emailAddr => self.email, report: 1).first
     self.username=email.split('@').first
-    self.employee_id = employee.id
-    self.tech = employee.techid.strip
+    self.employee_id = employee.id if employee
+    self.tech = tech.tech_code.strip
   end
 
   def cell
-    employee["country/region".to_sym]
+    Tech[tech].alternateaddr || email
+  end
+
+  def initials
+    #if cap_user= Desk::DataSource.capture[:users].where(userid: 'agauger').first
+    #  return cap_user[:initials].strip
+    #end
+    username[0..1]
   end
 
   def authenticatable_salt
@@ -44,13 +52,13 @@ class User < ApplicationRecord
   def send_two_factor_authentication_code(code)
     message = <<EOM
 From: The Desk <centraldesk@ccmaint.com>
-To: #{name} <#{email}>
+To: #{name} <#{cell}>
 Subject: Central Desk Two Factor Code
 
 #{code} is your two-factor authentication code for The Desk.
 EOM
-    Net::SMTP.start(ENV['SMTP_SERVER'], 25) do |mail_server|
-      mail_server.send_message message, 'centraldesk@ccmaint.com', email
+    Net::SMTP.start(ENV['SMTP_SERVER'], 25, 'desk.ccmaint.com' ) do |mail_server|
+      mail_server.send_message message, 'centraldesk@ccmaint.com', cell
     end
   end
 

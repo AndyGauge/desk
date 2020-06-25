@@ -13,7 +13,9 @@ Rails.application.routes.draw do
 	resources :hours
   resources :connections
   resources :contacts
-	devise_for :users
-  root 'customers#index'
+	devise_for :users do
+		get 'sign_out' => 'devise/sessions#destroy'
+	end
+  root 'hours#index'
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end

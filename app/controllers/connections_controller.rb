@@ -1,4 +1,6 @@
 class ConnectionsController < ApplicationController
+  before_action :whitelisted
+  before_action :cdesk_authorized
 
   def update
     connection = Connection[params[:id]]

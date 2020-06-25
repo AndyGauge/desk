@@ -7,11 +7,13 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
-        <a class="nav-link" href="/customers">Customers</a>
+        <a class="nav-link" href="/hours">Capture</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/hours">Field</a>
-      </li>
+      <% if @whitelisted && current_user&.employee_id %>
+        <li class="nav-item">
+          <a class="nav-link" href="/customers">Central Desk</a>
+        </li>
+      <% end %>
     </ul>
   </div>
 </nav>
