@@ -1,4 +1,6 @@
 class IncidentsController < ApplicationController
+  before_action :whitelisted
+  before_action :cdesk_authorized
 
   def events
     render json: Incident[params[:id]].calls
@@ -7,7 +9,7 @@ class IncidentsController < ApplicationController
   def create
     incident = Incident.new
     incident.set_from_params params[:incident]
-    incident['Assigned To'.to_sym] = current_user.employee_id
+    incident.newlyassigned = true
     incident.save_changes
     call = Call.new(incident: incident)
     call.set_from_params params[:call]

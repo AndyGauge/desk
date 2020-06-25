@@ -7,7 +7,7 @@ class HoursController < ApplicationController
   end
 
   def create
-    HoursSaver.new(params)
+    HoursSaver.new(params, current_user.initials)
     render 'index'
   end
   def update

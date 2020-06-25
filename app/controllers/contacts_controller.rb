@@ -1,4 +1,6 @@
 class ContactsController < ApplicationController
+  before_action :whitelisted
+  before_action :cdesk_authorized
 
   def update
     contact = Contact[params[:id]]

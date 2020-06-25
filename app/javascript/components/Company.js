@@ -1,13 +1,14 @@
-import React, { Component, useContext, useRef} from "react";
+import React, { Component, useContext, useRef, useState} from "react";
 import Accordion from 'react-bootstrap/Accordion';
 import AccordionContext from 'react-bootstrap/AccordionContext';
 import {useAccordionToggle} from 'react-bootstrap/AccordionToggle';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
+import Collapse from 'react-bootstrap/Collapse'
 import Connection from './Connection.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faPlusCircle, faInfoCircle, faEllipsisH } from '@fortawesome/free-solid-svg-icons';
 import Form from 'react-bootstrap/Form';
 import IdleTimer from 'react-idle-timer';
 import Modal from 'react-bootstrap/Modal';
@@ -17,8 +18,13 @@ import PropTypes from "prop-types";
 function ConnectionSearchForm(props) {
     const searchRef = useRef(null)
     const scrollAndExpandConnection = () => {
-        window.scrollTo(0, searchRef.current.offsetTop)
         expandConnection()
+        setTimeout(() => {
+            window.scrollBy({left: 0, top: searchRef.current.getBoundingClientRect().top - 5, behavior: 'smooth'})
+        }, 500)
+
+
+
     }
     const expandConnection = useContext(AccordionContext) ? () => void 0 : useAccordionToggle('ConnectionCollapse');
     return (
@@ -184,6 +190,7 @@ function ModalCreateContact(props) {
 }
 
 function ModalCreateIncident(props) {
+    const [showmore, setShowmore] = useState(false);
     return (
         <Modal show = {props.open} size={"lg"} centered >
             <Form onSubmit={props.handleCreateIncident}>
@@ -194,6 +201,21 @@ function ModalCreateIncident(props) {
                 </Modal.Header>
                 <Modal.Body>
                     <ModalFormField label='Title' attribute={'Title'} placeholder={"New Incident"} value={props.Title} changeHandler={props.setIncident}/>
+                    <div style={{margin: 'auto', width: '10px'}}><FontAwesomeIcon icon={faEllipsisH} onClick={() => setShowmore(!showmore)} /></div>
+                    <Collapse in={showmore}>
+                        <div>
+                            <Form.Group controlId={"incidentAssigned"}>
+                                <Form.Label>Assigned To</Form.Label>
+                                <Form.Control as={"select"}
+                                              onChange={(e) => {props.setIncident({AssignedTo: e.target.value})}}
+                                              value={props.AssignedTo }>
+                                    {props.assigned.map((assigned) =>
+                                        <option value={assigned.id} key={'assigned' + assigned.id}>{assigned.name}</option>)}
+                                </Form.Control>
+                            </Form.Group>
+
+                        </div>
+                    </Collapse>
                     <Form.Group controlId={"incidentAction"}>
                         <Form.Label>Action</Form.Label>
                         <Form.Control as={"select"}
@@ -204,13 +226,39 @@ function ModalCreateIncident(props) {
                         </Form.Control>
                     </Form.Group>
                     <ModalFormField label='notes' attribute={'Notes'} placeholder={"..."} value={props.Notes} changeHandler={props.setIncident} controlAttributes={{as:"textarea", rows:"3"}}/>
-                    <ModalFormField label='minutes' attribute={'Minutes'} placeholder={"15"} value={props.Minutes} changeHandler={props.setIncident}/>
+                    <ModalFormField label='minutes' attribute={'Minutes'} placeholder={"⌚"} value={props.Minutes} changeHandler={props.setIncident}/>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant={"primary"} type="submit">Add</Button>
                     <Button onClick={() => {props.setIncident({open: false})}}>Close</Button>
                 </Modal.Footer>
             </Form>
+        </Modal>
+    )
+}
+
+function ModalCustomerDetails(props) {
+    return (
+        <Modal show = {props.open} size={"lg"} centered >
+            <Modal.Header>
+                    <Modal.Title id ="customer-details-modal-title">
+                        {props.company} Details
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <ul className={'list-group list-group-flush'}>
+                        <li className={'list-group-item'}>
+                            <a href={'tel:' + props["business phone"]}>{props["business phone"]}</a>
+                        </li>
+                        <li className={'list-group-item'}>
+                            <a href={props.map_link}>{props.address} {props.city} {props["state/province"]}</a>
+                        </li>
+                    </ul>
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <Button onClick={props.close}>Close</Button>
+                </Modal.Footer>
         </Modal>
     )
 }
@@ -230,6 +278,7 @@ class Company extends Component {
             modalContact: {open: false},
             connection_search: '',
             filtered_connections: [],
+            detailsOpen: false
         };
         this.copyText = this.copyText.bind(this);
         this.connectionChange = this.connectionChange.bind(this);
@@ -401,6 +450,7 @@ class Company extends Component {
         let formData=this.setupFormData(new FormData);
         formData.append('incident[Customer]', this.props.id)
         formData.append('incident[Contact]', this.state.modalCreateIncident.ContactName)
+        formData.append('incident[Assigned To', this.state.modalCreateIncident.AssignedTo)
         formData.append('incident[Title]', this.state.modalCreateIncident.Title)
         formData.append('call[Action]', this.state.modalCreateIncident.Action)
         formData.append('call[Notes]', this.state.modalCreateIncident.Notes)
@@ -425,7 +475,7 @@ class Company extends Component {
                       onIdle={() => {window.location="/customers"}}
                       debounce={250}
                       timeout={1000 * 60 * 15} />
-          <h1>{this.props.company}</h1>
+          <h1>{this.props.company} <FontAwesomeIcon icon={faInfoCircle} onClick={() => this.setState({detailsOpen: true})} style={{color: '33A5FF'}}/></h1>
           <Accordion>
               <Card className="card-collapse">
                   <Card.Header className={"row"}>
@@ -457,7 +507,7 @@ class Company extends Component {
                               <div key={"contact" + contact.id} className="row contact-record">
                                   <div className="col-sm">
                                       <Button size={"sm"} variant={"success"}
-                                            onClick={() => {this.handleModalIncidentUpdate({open: true, ContactName: contact.contactname, Title: '', Minutes: '', Notes: '', contactid: contact.id, Action: this.props.actions[0]})}}>
+                                            onClick={() => {this.handleModalIncidentUpdate({open: true, ContactName: contact.contactname, Title: '', Minutes: '', Notes: '', contactid: contact.id, Action: this.props.actions[0], AssignedTo: this.props.employee_id})}}>
                                           <FontAwesomeIcon icon={faPlusCircle} />
                                       </Button>
                                       <span style={{paddingLeft:8}}>{contact.contactname}</span>
@@ -547,10 +597,12 @@ class Company extends Component {
            />
           <ModalCreateIncident {...this.state.modalCreateIncident} setIncident={this.handleModalIncidentUpdate}
                               handleCreateIncident={this.handleCreateIncident} actions={this.props.actions}
+                               assigned={this.props.assigned}
           />
           <ModalIncident {...this.state.modalIncident} company={this.props.company} calls={this.state.calls}
                          closeHandler={() => this.setState({modalIncident: {open: false}})}
           />
+          <ModalCustomerDetails {...this.props} open={this.state.detailsOpen} close={() => this.setState({detailsOpen:false})}/>
 
       </React.Fragment>
     );

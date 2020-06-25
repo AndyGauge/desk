@@ -1,5 +1,7 @@
 class CustomersController < ApplicationController
   before_action :set_customer, only: [:show, :edit, :update, :destroy, :contacts, :connections, :incidents]
+  before_action :whitelisted
+  before_action :cdesk_authorized
 
   # GET /customers
   # GET /customers.json
@@ -88,5 +90,6 @@ class CustomersController < ApplicationController
   def set_device_types_and_actions
     @device_types =  Desk::DataSource.cdesk[:"lu- Device Type"].all.map{ |type| type[:"device type"]}.sort
     @actions = Desk::DataSource.cdesk[:"lu- Actions"].all.map{|act| act[:action]}
+    @employee_id = {employee_id: current_user.employee_id}
   end
 end

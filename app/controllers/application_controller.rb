@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::Base
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
+  before_action :whitelisted?
 
   def cleanup_binary_data(hash_or_array)
     case hash_or_array
@@ -22,6 +23,18 @@ class ApplicationController < ActionController::Base
       hash[:upsize_ts] = (hash[:upsize_ts].unpack "L_").first
     end
     hash
+  end
+
+  def whitelisted
+    redirect_to '/' unless whitelisted?
+  end
+
+  def whitelisted?
+    @whitelisted ||= Whitelist.contains? request.remote_ip
+  end
+
+  def cdesk_authorized
+    redirect_to '/' unless current_user&.employee_id
   end
 
   protected
