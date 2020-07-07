@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   resources :customers do
     member do
-      get :contacts, :connections, :incidents
+      get :contacts, :connections, :incidents, :sites
     end
 	end
 	resources :incidents do
@@ -10,7 +10,11 @@ Rails.application.routes.draw do
 	  end
 	end
 	get '/hours/:tech/dated/:date', to: 'hours#dated', as: 'hours'
-	resources :hours
+	resources :hours do
+	  collection do
+	    post :action
+	  end
+	end
   resources :connections
   resources :contacts
 	devise_for :users do

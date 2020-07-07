@@ -253,6 +253,19 @@ function ModalCustomerDetails(props) {
                         <li className={'list-group-item'}>
                             <a href={props.map_link}>{props.address} {props.city} {props["state/province"]}</a>
                         </li>
+                        {props.sites.map( site => (
+                            <React.Fragment key={'site'+site.id}>
+                                <li className={'list-group-item list-group-item-dark'}>{site.sitename}</li>
+                                <li className={'list-group-item'}>
+                                    <a href={'tel:' + site.sitephone}>{site.sitephone}</a>
+                                </li>
+                                <li className={'list-group-item'}>
+                                    <a href={site.map_link}>{site.siteaddr1} {site.siteaddr2} {site.sitecity} {site.sitestate}</a>
+                                </li>
+                            </React.Fragment>
+
+                            )
+                        )}
                     </ul>
                 </Modal.Body>
 
@@ -268,6 +281,7 @@ class Company extends Component {
         super(props);
 
         this.state = {
+            sites: [],
             contacts: [],
             connections: [],
             incidents: [],
@@ -290,10 +304,21 @@ class Company extends Component {
     }
     componentDidMount() {
         this.fetchController = new AbortController();
+        this.fetchSites();
         this.fetchContacts();
         this.fetchConnections();
         this.fetchIncidents();
 
+    }
+    fetchSites = () => {
+        const signal = this.fetchController.signal;
+        fetch('/customers/' + this.props.id + '/sites', {signal})
+            .then(response => response.json())
+            .then(sites => this.setState({sites}))
+            .catch(error => {
+                if (error.name === 'AbortError') return;
+                throw error;
+            });
     }
     fetchContacts = () => {
         const signal = this.fetchController.signal;
@@ -602,7 +627,9 @@ class Company extends Component {
           <ModalIncident {...this.state.modalIncident} company={this.props.company} calls={this.state.calls}
                          closeHandler={() => this.setState({modalIncident: {open: false}})}
           />
-          <ModalCustomerDetails {...this.props} open={this.state.detailsOpen} close={() => this.setState({detailsOpen:false})}/>
+          <ModalCustomerDetails {...this.props} sites={this.state.sites} open={this.state.detailsOpen}
+                                close={() => this.setState({detailsOpen:false})}
+          />
 
       </React.Fragment>
     );

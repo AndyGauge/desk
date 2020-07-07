@@ -8,6 +8,8 @@ import { faPlus, faCheck } from '@fortawesome/free-solid-svg-icons'
 import Row from 'react-bootstrap/Row'
 import PropTypes from "prop-types";
 import Hours from './Hours'
+import QuickButtons from './QuickButtons'
+
 class Field extends Component {
     constructor(props) {
         super(props);
@@ -55,7 +57,11 @@ class Field extends Component {
             return hour
         })
         let techheader = response.techheader
-        this.setState({hours, techheader})
+        let workorder=this.state.workorder
+        if (!workorder && hours.length > 0) {
+            workorder = hours[hours.length-1].workorder
+        }
+        this.setState({hours, techheader, workorder})
     }
     convertDateTimeto24HourTime = (datetime) => {
         if (datetime) {
@@ -171,6 +177,10 @@ class Field extends Component {
                     <form action={'/hours'} method={'post'}>
                         <input type="hidden" name="authenticity_token" value={csrf_token} readOnly={true} />
                         <input type="hidden" name="hour[techheader]" value={this.state.techheader} readOnly={true} />
+                        <QuickButtons hours={this.state.hours} show={!this.state.submitVisible} workorder={this.state.workorder}
+                            updateWorkorder={(e) => this.setState({workorder: e.target.value})} tech={this.props.tech}
+                            update={this.fetchHours}
+                        />
                     <Row className="d-none d-md-flex hours-header">
                         <Col sm>Work Order</Col>
                         <Col sm>Start</Col>

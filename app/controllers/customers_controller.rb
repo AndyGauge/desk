@@ -1,5 +1,5 @@
 class CustomersController < ApplicationController
-  before_action :set_customer, only: [:show, :edit, :update, :destroy, :contacts, :connections, :incidents]
+  before_action :set_customer, only: [:show, :edit, :update, :destroy, :contacts, :connections, :incidents, :sites]
   before_action :whitelisted
   before_action :cdesk_authorized
 
@@ -74,6 +74,10 @@ class CustomersController < ApplicationController
 
   def incidents
     render json: FetchIncidentsService.new.by_customer(@customer.id)
+  end
+
+  def sites
+    render json: @customer.sites.map { |s| s.as_json.merge(map_link: s.map_link) }
   end
 
   private

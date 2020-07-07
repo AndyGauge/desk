@@ -3,7 +3,7 @@ class Incident < Sequel::Model(Desk::DataSource.cdesk[:incidents].select(:id, :c
   one_to_many :calls, key: :casenum
 
 	plugin :validation_helpers
-	# The Unassigned tech 
+	# The Unassigned tech
 	UNASSIGNED = 41
 
 
