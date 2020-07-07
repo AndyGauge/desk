@@ -36,7 +36,6 @@ class QuickButtons extends Component {
         let formData = this.setupFormData(new FormData);
         formData.append('act', e.target.innerHTML);
         formData.append('workorder', this.props.workorder)
-        console.log(e.target)
 
         fetch('/hours/action', {
             method: 'POST',
@@ -61,7 +60,7 @@ class QuickButtons extends Component {
         } else {
            lasthour = this.props.hours[this.props.hours.length -1]
 
-            if (lasthour.activity == 'Travel' && lasthour.status == 'To Shop') {
+            if (lasthour.activity == 'Travel' && lasthour.status == 'To Shop' && !lasthour.end ) {
                 workorder = false
                 travel = <Col sm><Button size="lg" block onClick={this.sendAction}>At Shop</Button></Col>
             } else if (lasthour.activity == 'Travel' && lasthour.status == 'On Way') {
