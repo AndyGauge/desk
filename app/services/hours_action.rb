@@ -23,7 +23,7 @@ class HoursAction
     when 'Travel to site'
       new_hour(activity: 'Travel', status: 'On Way')
     when 'At Shop'
-      end_last(update_status: true)
+      end_last(status: 'To Shop', update_status: true)
     when 'On Site'
       new_hour(activity: 'On-Site')
       end_last(update_status: true)
