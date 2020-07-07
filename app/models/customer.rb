@@ -4,6 +4,7 @@ class Customer < Sequel::Model(Desk::DataSource.cdesk[:customers].order(Sequel.a
 	one_to_many :connections, key: :customerid
 	one_to_many :contacts, key: :customerid
 	one_to_many :incidents, key: :customer
+	one_to_many :sites, key: :cust_id, order: Sequel.desc(:primarysite)
 
 	def first
 		self[:"first name"]

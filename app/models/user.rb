@@ -15,7 +15,7 @@ class User < ApplicationRecord
   # use ldap uid as primary key
   before_validation do
     employee = Employee.where("E-Mail Address".to_sym => self.email).first
-    tech = Tech.where(:emailAddr => self.email, report: 1).first
+    tech = Tech.where(:emailAddr => self.email).first
     self.username=email.split('@').first
     self.employee_id = employee.id if employee
     self.tech = tech.tech_code.strip
@@ -41,7 +41,7 @@ class User < ApplicationRecord
   end
 
   def timeout_in
-    30.minutes
+    10.hours
   end
 
   def need_two_factor_authentication?(request)

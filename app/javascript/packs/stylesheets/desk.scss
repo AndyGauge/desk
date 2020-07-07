@@ -120,3 +120,12 @@ span.customer-title {
     width: 100%
   }
 }
+
+.quickbuttons.row {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.quickbuttons.row > .col-sm {
+  padding-bottom: 5px;
+}
