@@ -29,6 +29,9 @@ class HoursAction
       end_last(update_status: true)
     when 'Back On Site'
       new_hour(activity: 'On-site')
+    when 'Remain On Site'
+      new_hour(activity: 'On-site')
+      end_last
     when 'Travel to Shop'
       new_hour(activity: 'Travel', status: 'To Shop')
       end_last

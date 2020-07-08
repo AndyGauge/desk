@@ -67,17 +67,18 @@ class QuickButtons extends Component {
                 travel = <Col sm><Button size="lg" block onClick={this.sendAction}>On Site</Button></Col>
             } else if (lasthour.activity == 'On-site') {
                 workorder = true
-                if (lasthour.status == 'Returning') {
-                    travel = <Col sm><Button size="lg" block onClick={this.sendAction}>Travel to Shop</Button></Col>
-                    complete = <Col sm><Button size="lg" block onClick={this.sendAction}>Back On Site</Button></Col>
-                } else if (lasthour.workorder !== this.props.workorder) {
-                    travel = <Col sm><Button size="lg" block onClick={this.sendAction}>Travel to site</Button></Col>
-                    complete = <Col sm><Button size="lg" block onClick={this.sendAction}>Returning</Button></Col>
-                } else {
-                    travel = <Col sm><Button size="lg" block onClick={this.sendAction}>Travel to Shop</Button></Col>
-                    complete = <Col sm><Button size="lg" block onClick={this.sendAction}>Returning</Button></Col>
+                if (!this.state.workorder_show) {
+                    if (lasthour.status == 'Returning') {
+                        travel = <Col sm><Button size="lg" block onClick={this.sendAction}>Travel to Shop</Button></Col>
+                        complete = <Col sm><Button size="lg" block onClick={this.sendAction}>Back On Site</Button></Col>
+                    } else if (lasthour.workorder !== this.props.workorder) {
+                        travel = <Col sm><Button size="lg" block onClick={this.sendAction}>Travel to site</Button></Col>
+                        complete = <Col sm><Button size="lg" block onClick={this.sendAction}>Remain On Site</Button></Col>
+                    } else {
+                        travel = <Col sm><Button size="lg" block onClick={this.sendAction}>Travel to Shop</Button></Col>
+                        complete = <Col sm><Button size="lg" block onClick={this.sendAction}>Returning</Button></Col>
+                    }
                 }
-
             } else if (lasthour.activity == 'Depot' && lasthour.status == '') {
                 complete = <React.Fragment>
                         <Col sm><Button size="lg" block onClick={this.sendAction}>Complete</Button></Col>
