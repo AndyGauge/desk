@@ -65,7 +65,7 @@ class QuickButtons extends Component {
                 travel = <Col sm><Button size="lg" block onClick={this.sendAction}>At Shop</Button></Col>
             } else if (lasthour.activity == 'Travel' && lasthour.status == 'On Way') {
                 travel = <Col sm><Button size="lg" block onClick={this.sendAction}>On Site</Button></Col>
-            } else if (lasthour.activity == 'On-Site') {
+            } else if (lasthour.activity == 'On-site') {
                 workorder = true
                 if (lasthour.status == 'Returning') {
                     travel = <Col sm><Button size="lg" block onClick={this.sendAction}>Travel to Shop</Button></Col>
