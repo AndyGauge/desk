@@ -49,6 +49,8 @@ class QuickButtons extends Component {
         let travel
         let complete
         let depot
+        let returning
+        let lunch
         let lasthour = {}
         if (this.props.hours.length == 0) {
             workorder = true
@@ -69,14 +71,14 @@ class QuickButtons extends Component {
                 workorder = true
                 if (!this.state.workorder_show) {
                     if (lasthour.status == 'Returning') {
-                        travel = <Col sm><Button size="lg" block onClick={this.sendAction}>Travel to Shop</Button></Col>
                         complete = <Col sm><Button size="lg" block onClick={this.sendAction}>Back On Site</Button></Col>
                     } else if (lasthour.workorder !== this.props.workorder) {
                         travel = <Col sm><Button size="lg" block onClick={this.sendAction}>Travel to site</Button></Col>
                         complete = <Col sm><Button size="lg" block onClick={this.sendAction}>Remain On Site</Button></Col>
                     } else {
                         travel = <Col sm><Button size="lg" block onClick={this.sendAction}>Travel to Shop</Button></Col>
-                        complete = <Col sm><Button size="lg" block onClick={this.sendAction}>Returning</Button></Col>
+                        lunch = <Col sm><Button size="lg" block onClick={this.sendAction}>Lunch</Button></Col>
+                        returning = <Col sm><Button size="lg" block onClick={this.sendAction}>Travel to Shop Returning</Button></Col>
                     }
                 }
             } else if (lasthour.activity == 'Depot' && lasthour.status == '') {
@@ -114,6 +116,8 @@ class QuickButtons extends Component {
                 {depot}
                 {travel}
                 {complete}
+                {returning}
+                {lunch}
 
             </Row>
         )

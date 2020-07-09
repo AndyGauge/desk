@@ -7,11 +7,12 @@ import TimeInput from './timeInput.jsx';
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faPencilAlt } from '@fortawesome/free-solid-svg-icons'
+import Modal from "react-bootstrap/Modal";
 class Hours extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {   };
+        this.state = { modalOpen: false };
 
         this.handleWorkOrderChange = this.handleWorkOrderChange.bind(this);
         this.handleStartChange = this.handleStartChange.bind(this);
@@ -33,13 +34,50 @@ class Hours extends Component {
         this.props.hoursChange({[this.props.detailid]: {activity: e.target.value} })
     }
     handleStatusChange = (e) => {
-        this.props.hoursChange({[this.props.detailid]: {status: e.target.value} })
+            this.props.hoursChange({[this.props.detailid]: {status: e.target.value} })
     }
     handleEditChange = (e) => {
-        this.props.hoursChange({[this.props.detailid]: {editmode: 'update'}})
+        if(window.innerWidth > 575) {
+            this.props.hoursChange({[this.props.detailid]: {editmode: 'update'}})
+        } else {
+            this.setState({modalOpen: true})
+        }
     }
     handleNotesChange = (e) => {
         this.props.hoursChange({[this.props.detailid]: {notes: e.target.value} })
+    }
+    setupFormData = (formData) => {
+        const csrf_token = document.head.querySelector("[name~=csrf-token]").content
+        formData.append('authenticity_token', csrf_token);
+        formData.append('_method', 'POST');
+        return formData
+    }
+    handleUpdate = (e) => {
+        e.preventDefault();
+        let formData = this.setupFormData(new FormData);
+        formData.append('workorder', this.props.workorder)
+        if (this.props.start) {
+            formData.append('start', this.props.start)
+        }
+        if (this.props.end && this.props.end != null){
+            formData.append('end', this.props.end)
+        }
+        formData.append('activity', this.props.activity)
+        if (this.props.status) {
+            formData.append('status', this.props.status)
+        }
+        if (this.props.notes) {
+            formData.append('notes', this.props.notes)
+        }
+        fetch('/hours/'+this.props.detailid, {
+            method: 'PUT',
+            body: formData
+        }).then(() => {
+            this.setState({modalOpen: false})
+            this.props.fetchHours()
+        })
+
+
     }
     render() {
         let workorder;
@@ -145,6 +183,77 @@ class Hours extends Component {
                         <Col sm={{order: 6}} xs={{span: 6, order: 2}} >{edit}</Col>
                     </Row>
                     {notes}
+                    <Modal show = {this.state.modalOpen} size={"lg"} centered >
+                        <Form onSubmit={this.handleUpdate}>
+                            <Modal.Header>
+                                <Modal.Title id ="customer-connection-modal-title">
+                                    Edit Capture Entry
+                                </Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+
+                                <Form.Group controlId={"editWorkOrder"}>
+                                    <Form.Label>WorkOrder</Form.Label>
+                                    <Form.Control type={'text'} value={this.props.workorder} onChange={this.handleWorkOrderChange}
+                                                  name={'hour[workorder]'} className={'form-control hour-record'} placeholder={'workorder'}/>
+                                </Form.Group>
+                                <Form.Group controlId={"editStart"}>
+                                    <Form.Label>Start</Form.Label>
+                                    <TimeInput initTime={this.props.start} onTimeChange={this.handleStartChange} name={'hour[start]'}
+                                               className={'form-control hour-record'} placeholder={'start'}/>
+                                </Form.Group>
+                                <Form.Group controlId={"editEnd"}>
+                                    <Form.Label>End</Form.Label>
+                                    <TimeInput initTime={this.props.end} onTimeChange={this.handleEndChange}
+                                               name={['status', 'update'].includes(this.props.editmode) ? 'hour[' + this.props.detailid + '][end]' : 'hour[end]'}
+                                               className={'form-control hour-record'} placeholder={'end'}/>
+                                </Form.Group>
+                                <Form.Group controlId={"editActivity"}>
+                                    <Form.Label>Activity</Form.Label>
+                                    <Form.Control as={'select'} value={this.props.activity ? this.props.activity : ''}
+                                                  onChange={this.handleActivityChange} className={'form-control hour-record'}
+                                                  name={['status', 'update'].includes(this.props.editmode) ? 'hour[' + this.props.detailid + '][activity]' : 'hour[activity]'}>
+                                        <option value={'Admin'}>Admin</option>
+                                        <option value={'Depot'}>Depot</option>
+                                        <option value={'On-site'}>On-site</option>
+                                        <option value={'Remote'}>Remote</option>
+                                        <option value={'Sick'}>Sick</option>
+                                        <option value={'xTraining'}>xTraining</option>
+                                        <option value={'Travel'}>Travel</option>
+                                        <option value={'Vacation'}>Vacation</option>
+                                        <option value={'OT On-Site'}>OT On-Site</option>
+                                        <option value={'OT Travel'}>OT Travel</option>
+                                        <option value={'OT Depot'}>OT Depot</option>
+                                    </Form.Control>
+                                </Form.Group>
+                                <Form.Group controlId={"editStatus"}>
+                                    <Form.Label>Status</Form.Label>
+                                    <Form.Control as={'select'} className={'form-control hour-record'}
+                                                  name={['status', 'update'].includes(this.props.editmode) ? 'hour[' + this.props.detailid + '][status]' : 'hour[status]'}
+                                                  value={this.props.status ? this.props.status : ''} onChange={this.handleStatusChange} >
+                                        <option value={''} />
+                                        <option value={'Complete'}>Complete</option>
+                                        <option value={'Loaner'}>Loaner</option>
+                                        <option value={'On Way'}>On Way</option>
+                                        <option value={'Parts'}>Parts</option>
+                                        <option value={'Returning'}>Returning</option>
+                                        <option value={'To Shop'}>To Shop</option>
+                                    </Form.Control>
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.Label>Notes</Form.Label>
+                                    <Form.Control as="textarea" rows="3" value={typeof this.props.notes === "string" ? this.props.notes : ""}
+                                                  name={['status', 'update'].includes(this.props.editmode) ? 'hour[' + this.props.detailid + '][notes]' : 'hour[notes]'}
+                                                  onChange={this.handleNotesChange} />
+                                </Form.Group>
+
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button variant={"primary"} type="submit">Save</Button>
+                                <Button variant="danger" onClick={() => {this.setState({modalOpen: false})}}>Cancel</Button>
+                            </Modal.Footer>
+                        </Form>
+                    </Modal>
                 </React.Fragment>
             )
         } else {

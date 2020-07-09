@@ -35,6 +35,11 @@ class HoursAction
     when 'Travel to Shop'
       new_hour(activity: 'Travel', status: 'To Shop')
       end_last
+    when 'Travel to Shop Returning'
+      new_hour(activity: 'Travel', status: 'To Shop')
+      end_last(status: 'Returning')
+    when 'Lunch'
+      end_last(status: "Returning", notes: "Lunch")
     end
   end
 
@@ -54,9 +59,9 @@ class HoursAction
 
   end
 
-  def end_last(status: "Complete", update_status: false)
+  def end_last(status: "Complete", notes: '', update_status: false)
     if @last_hour && (@last_hour.status == '' || update_status)
-       @last_hour.update({end: @now, status: status, hours: (@now - @last_hour.start) / 3600.0})
+       @last_hour.update({end: @now, status: status, hours: (@now - @last_hour.start) / 3600.0}, notes: notes)
     end
   end
 
