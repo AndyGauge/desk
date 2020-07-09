@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   resources :customers do
     member do
-      get :contacts, :connections, :incidents, :sites
+      get :contacts, :connections, :incidents, :sites, :machines
     end
 	end
 	resources :incidents do

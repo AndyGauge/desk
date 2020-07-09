@@ -1,5 +1,5 @@
 class CustomersController < ApplicationController
-  before_action :set_customer, only: [:show, :edit, :update, :destroy, :contacts, :connections, :incidents, :sites]
+  before_action :set_customer, only: [:show, :edit, :update, :destroy, :contacts, :connections, :incidents, :sites, :machines]
   before_action :whitelisted
   before_action :cdesk_authorized
 
@@ -78,6 +78,10 @@ class CustomersController < ApplicationController
 
   def sites
     render json: @customer.sites.map { |s| s.as_json.merge(map_link: s.map_link) }
+  end
+
+  def machines
+    render json: @customer.machines.map { |m| m.as_json.merge(live_connect: m.live_connect)}
   end
 
   private

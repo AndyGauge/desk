@@ -286,6 +286,7 @@ class Company extends Component {
             connections: [],
             incidents: [],
             calls: [],
+            machines: [],
             modalIncident: { open: false },
             modalCreateIncident: { open: false },
             modalConnection: { open: false },
@@ -308,7 +309,7 @@ class Company extends Component {
         this.fetchContacts();
         this.fetchConnections();
         this.fetchIncidents();
-
+        this.fetchMachines();
     }
     fetchSites = () => {
         const signal = this.fetchController.signal;
@@ -345,6 +346,16 @@ class Company extends Component {
         fetch('/customers/' + this.props.id + '/incidents', {signal})
             .then(   response => response.json())
             .then(  incidents => this.setState({ incidents }))
+            .catch(error => {
+                if (error.name === 'AbortError') return;
+                throw error;
+            });
+    }
+    fetchMachines = () => {
+        const signal = this.fetchController.signal;
+        fetch('/customers/' + this.props.id + '/machines', {signal})
+            .then(response => response.json())
+            .then(machines => this.setState({machines}))
             .catch(error => {
                 if (error.name === 'AbortError') return;
                 throw error;
@@ -606,6 +617,33 @@ class Company extends Component {
                                   </div>
                                   <div className="col-sm">{incident.Tech}</div>
                                   <div className="col-sm">{incident.Status}</div>
+                              </div>
+                          )}
+                      </Card.Body>
+                  </Accordion.Collapse>
+              </Card>
+              <Card>
+                  <Card.Header>
+                      <Accordion.Toggle as={Button} variant="link" eventKey="3">
+                          <h5>Machines</h5>
+                      </Accordion.Toggle>
+                  </Card.Header>
+                  <Accordion.Collapse eventKey="3">
+                      <Card.Body>
+                          <div className="d-none d-md-flex contact-header row">
+                              <div className="col-sm">Name</div>
+                              <div className="col-sm">Login</div>
+                              <div className="col-sm">OS</div>
+
+                          </div>
+                          {this.state.machines.map((machine,key) =>
+                              <div key={"machine" + machine.agentguid} className="row contact-record">
+                                  <div className="col-sm"><a href={machine.live_connect}>{machine.machname}</a></div>
+                                  <div className="col-sm">
+                                      {machine.lastloginname}
+                                  </div>
+                                  <div className="col-sm">{machine.ostype}</div>
+
                               </div>
                           )}
                       </Card.Body>
