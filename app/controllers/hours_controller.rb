@@ -14,7 +14,7 @@ class HoursController < ApplicationController
     hour_start = params[:start] ? Time.new(1899,12,30,*params[:start].split(':')) : nil
     if params[:end] && params[:start]
       hour_end = Time.new(1899,12,30,*params[:end].split(':'))
-      hours = hour_end - hour_start
+      hours = (hour_end - hour_start) / 3600.0
     else
       hour_end = nil
       hours = nil
