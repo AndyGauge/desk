@@ -19,19 +19,28 @@ class HoursAction
     when 'Complete'
       end_last
     when 'Returning'
-      end_last("Returning")
+      end_last(status: "Returning")
     when 'Travel to site'
-      new_hour(activity: 'Travel')
+      new_hour(activity: 'Travel', status: 'On Way')
     when 'At Shop'
-      end_last( 'To Shop')
+      end_last(status: 'To Shop', update_status: true)
     when 'On Site'
-      new_hour(activity: 'On Site')
-      end_last
+      new_hour(activity: 'On-site')
+      end_last(update_status: true)
     when 'Back On Site'
-      new_hour(activity: 'On Site')
+      new_hour(activity: 'On-site')
+    when 'Remain On Site'
+      new_hour(activity: 'On-site')
+      end_last
+    when 'Travel to Shop'
+      new_hour(activity: 'Travel', status: 'To Shop')
+      end_last
+    when 'Travel to Shop Returning'
+      new_hour(activity: 'Travel', status: 'To Shop')
+      end_last(status: 'Returning')
+    when 'Lunch'
+      end_last(status: "Returning", notes: "Lunch")
     end
-
-
   end
 
   private
@@ -50,9 +59,9 @@ class HoursAction
 
   end
 
-  def end_last(status="Complete")
-    if @last_hour && @last_hour.status == ''
-       @last_hour.update({end: @now, status: status, hours: (@now - @last_hour.start) / 3600.0})
+  def end_last(status: "Complete", notes: '', update_status: false)
+    if @last_hour && (@last_hour.status == '' || update_status)
+       @last_hour.update({end: @now, status: status, hours: (@now - @last_hour.start) / 3600.0}, notes: notes)
     end
   end
 

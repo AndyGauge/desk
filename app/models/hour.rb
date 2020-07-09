@@ -9,5 +9,4 @@ class Hour < Sequel::Model(:hoursdetail)
 		validates_presence :techheader
 	end
 
-
 end

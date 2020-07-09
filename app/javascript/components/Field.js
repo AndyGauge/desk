@@ -141,6 +141,7 @@ class Field extends Component {
             this.setState({hours, submitvisible})
         }
     }
+
     cancelForm = () => {
 
         this.setState({
@@ -153,8 +154,10 @@ class Field extends Component {
     }
     render() {
         let hours = this.state.hours.map((hour,key) => {
-               // this.setState({workorder: hour.workorder, techheader: hour.techheader})
-                return (<Hours key={"hour"+hour.detailid} hoursChange={this.hoursChange} {...hour} visible={true} />)
+                return (<Hours key={"hour"+hour.detailid}
+                               hoursChange={this.hoursChange} {...hour}
+                               visible={true}
+                               fetchHours = {this.fetchHours}/>)
             })
         let partial_edit
         if (this.state.last_hour) {
