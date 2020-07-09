@@ -81,7 +81,7 @@ class CustomersController < ApplicationController
   end
 
   def machines
-    render json: @customer.machines.map { |m| m.as_json.merge(live_connect: m.live_connect)}
+    render json: @customer.machines.order(:machname).map { |m| m.as_json.merge(live_connect: m.live_connect)}
   end
 
   private

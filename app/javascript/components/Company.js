@@ -23,13 +23,23 @@ function ConnectionSearchForm(props) {
             window.scrollBy({left: 0, top: searchRef.current.getBoundingClientRect().top - 5, behavior: 'smooth'})
         }, 500)
 
-
-
     }
     const expandConnection = useContext(AccordionContext) ? () => void 0 : useAccordionToggle('ConnectionCollapse');
     return (
         <Form.Control {...props} onClick={scrollAndExpandConnection} type="text" id="connection_search" className={'searchinput'} ref={searchRef} />
         )
+}
+
+function MachineSearchForm(props) {
+    const searchRef = useRef(null)
+    const scrollAndExpandConnection = () => {
+        expandMachine()
+
+    }
+    const expandMachine = useContext(AccordionContext) ? () => void 0 : useAccordionToggle('MachineCollapse');
+    return (
+        <Form.Control {...props} onClick={scrollAndExpandConnection} type="text" id="machine_search" className={'searchinput'} ref={searchRef} />
+    )
 }
 
 function ModalIncident(props) {
@@ -293,11 +303,12 @@ class Company extends Component {
             modalContact: {open: false},
             connection_search: '',
             filtered_connections: [],
+            filtered_machines: [],
             detailsOpen: false
         };
         this.copyText = this.copyText.bind(this);
         this.connectionChange = this.connectionChange.bind(this);
-        this.searchChonnection = this.searchConnection.bind(this);
+        this.searchConnection = this.searchConnection.bind(this);
         this.handleCreateConnection = this.handleCreateConnection.bind(this);
         this.handleCreateContact = this.handleCreateContact.bind(this);
         this.handleCreateIncident = this.handleCreateIncident.bind(this);
@@ -355,7 +366,10 @@ class Company extends Component {
         const signal = this.fetchController.signal;
         fetch('/customers/' + this.props.id + '/machines', {signal})
             .then(response => response.json())
-            .then(machines => this.setState({machines}))
+            .then(machines => {
+                const filtered_machines = machines
+                this.setState({machines, filtered_machines})
+            })
             .catch(error => {
                 if (error.name === 'AbortError') return;
                 throw error;
@@ -410,6 +424,17 @@ class Company extends Component {
             })
         })
         this.setState({connection_search, filtered_connections})
+
+    }
+    searchMachine = (e) => {
+        const machine_search = e.target.value;
+        let terms = machine_search.toUpperCase().split(' ');
+        const filtered_machines = this.state.machines.filter(mach => {
+            return terms.every(term => {
+                return Object.values(mach).join('').toUpperCase().indexOf(term) > -1;
+            })
+        })
+        this.setState({machine_search, filtered_machines})
 
     }
     handleModalConnectionUpdate = (property) => {
@@ -571,7 +596,7 @@ class Company extends Component {
                           </Button>
                       </Col>
                       <Col sm>
-                          <ConnectionSearchForm value={this.state.connection_search} onChange={this.searchConnection}
+                          <MachineSearchForm value={this.state.connection_search} onChange={this.searchConnection}
                           onClick={(e) => window.scrollTo(0,e.target.offsetTop)}/>
                       </Col>
                   </Card.Header>
@@ -623,12 +648,18 @@ class Company extends Component {
                   </Accordion.Collapse>
               </Card>
               <Card>
-                  <Card.Header>
-                      <Accordion.Toggle as={Button} variant="link" eventKey="3">
-                          <h5>Machines</h5>
-                      </Accordion.Toggle>
+                  <Card.Header className={"row"}>
+                      <Col sm={6}>
+                        <Accordion.Toggle as={Button} variant="link" eventKey="MachineCollapse">
+                           <h5>Machines</h5>
+                        </Accordion.Toggle>
+                      </Col>
+                      <Col sm>
+                        <MachineSearchForm value={this.state.machine_search} onChange={this.searchMachine} />
+                      </Col>
+
                   </Card.Header>
-                  <Accordion.Collapse eventKey="3">
+                  <Accordion.Collapse eventKey="MachineCollapse">
                       <Card.Body>
                           <div className="d-none d-md-flex contact-header row">
                               <div className="col-sm">Name</div>
@@ -636,7 +667,7 @@ class Company extends Component {
                               <div className="col-sm">OS</div>
 
                           </div>
-                          {this.state.machines.map((machine,key) =>
+                          {this.state.filtered_machines.map((machine,key) =>
                               <div key={"machine" + machine.agentguid} className="row contact-record">
                                   <div className="col-sm"><a href={machine.live_connect}>{machine.machname}</a></div>
                                   <div className="col-sm">
