@@ -50,6 +50,7 @@ class User < ApplicationRecord
   end
 
   def send_two_factor_authentication_code(code)
+
     message = <<EOM
 From: The Desk <centraldesk@ccmaint.com>
 To: #{name} <#{cell}>
@@ -57,6 +58,15 @@ Subject: Central Desk Two Factor Code
 
 #{code} is your two-factor authentication code for The Desk.
 EOM
+    if cell != email
+      message = <<EOM
+From: The Desk <centraldesk@ccmaint.com>
+To: #{name} <#{cell}>
+
+#{code} is your two-factor authentication code for The Desk.
+EOM
+
+    end
     Net::SMTP.start(ENV['SMTP_SERVER'], 25, 'desk.ccmaint.com' ) do |mail_server|
       mail_server.send_message message, 'centraldesk@ccmaint.com', cell
     end
