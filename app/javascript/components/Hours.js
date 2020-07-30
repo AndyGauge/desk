@@ -152,9 +152,16 @@ class Hours extends Component {
         if (['full', 'update'].includes(this.props.editmode)) {
 
         } else {
-            edit = <Button onClick={this.handleEditChange} variant={'warning'} size={'sm'}>
-                <FontAwesomeIcon icon={faPencilAlt} color={"white"}/><span className={'d-float'} style={{color:'white', paddingLeft:5}}>Edit</span>
-            </Button>
+            let noted
+            if (this.props.notes) {
+                noted = <span>👀</span>
+            }
+            edit = <>
+                {noted}
+                <Button onClick={this.handleEditChange} variant={'warning'} size={'sm'}>
+                    <FontAwesomeIcon icon={faPencilAlt} color={"white"}/><span className={'d-float'} style={{color:'white', paddingLeft:5}}>Edit</span>
+                </Button>
+            </>
         }
 
         let notes;
