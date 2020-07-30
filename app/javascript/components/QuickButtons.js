@@ -55,8 +55,8 @@ class QuickButtons extends Component {
         if (this.props.hours.length == 0) {
             workorder = true
             if(this.props.workorder && !this.state.workorder_show) {
-                travel = <Col sm><Button size="lg" block onClick={this.sendAction}>Travel to site</Button></Col>
-                depot =  <Col sm><Button size="lg" block onClick={this.sendAction}>Start Depot</Button></Col>
+                travel = <Col sm><Button size="lg" className='btnFullHeight' block onClick={this.sendAction}>Travel to site</Button></Col>
+                depot =  <Col sm><Button size="lg" className='btnFullHeight' block onClick={this.sendAction}>Start Depot</Button></Col>
             }
 
         } else {
@@ -64,36 +64,36 @@ class QuickButtons extends Component {
 
             if (lasthour.activity == 'Travel' && lasthour.status == 'To Shop' && !lasthour.end ) {
                 workorder = false
-                travel = <Col sm><Button size="lg" block onClick={this.sendAction}>At Shop</Button></Col>
+                travel = <Col sm><Button size="lg" className='btnFullHeight' block onClick={this.sendAction}>At Shop</Button></Col>
             } else if (lasthour.activity == 'Travel' && lasthour.status == 'On Way') {
-                travel = <Col sm><Button size="lg" block onClick={this.sendAction}>On Site</Button></Col>
+                travel = <Col sm><Button size="lg" className='btnFullHeight' block onClick={this.sendAction}>On Site</Button></Col>
             } else if (lasthour.activity == 'On-site') {
                 workorder = true
                 if (!this.state.workorder_show) {
                     if (lasthour.status == 'Returning') {
-                        complete = <Col sm><Button size="lg" block onClick={this.sendAction}>Back On Site</Button></Col>
+                        complete = <Col sm><Button size="lg" className='btnFullHeight' block onClick={this.sendAction}>Back On Site</Button></Col>
                     } else if (lasthour.workorder !== this.props.workorder) {
-                        travel = <Col sm><Button size="lg" block onClick={this.sendAction}>Travel to site</Button></Col>
-                        complete = <Col sm><Button size="lg" block onClick={this.sendAction}>Remain On Site</Button></Col>
+                        travel = <Col sm><Button size="lg" className='btnFullHeight' block onClick={this.sendAction}>Travel to site</Button></Col>
+                        complete = <Col sm><Button size="lg" className='btnFullHeight' block onClick={this.sendAction}>Remain On Site</Button></Col>
                     } else {
-                        travel = <Col sm><Button size="lg" block onClick={this.sendAction}>Travel to Shop</Button></Col>
-                        lunch = <Col sm><Button size="lg" block onClick={this.sendAction}>Lunch</Button></Col>
-                        returning = <Col sm><Button size="lg" block onClick={this.sendAction}>Travel to Shop Returning</Button></Col>
+                        travel = <Col sm><Button size="lg" className='btnFullHeight' block onClick={this.sendAction}>Travel to Shop</Button></Col>
+                        lunch = <Col sm><Button size="lg" className='btnFullHeight' block onClick={this.sendAction}>Lunch</Button></Col>
+                        returning = <Col sm><Button size="lg" className='btnFullHeight' block onClick={this.sendAction}>Travel to Shop Returning</Button></Col>
                     }
                 }
             } else if (lasthour.activity == 'Depot' && lasthour.status == '') {
                 complete = <React.Fragment>
-                        <Col sm><Button size="lg" block onClick={this.sendAction}>Complete</Button></Col>
-                        <Col sm><Button size="lg" block onClick={this.sendAction}>Returning</Button></Col>
+                        <Col sm><Button size="lg" className='btnFullHeight' block onClick={this.sendAction}>Complete</Button></Col>
+                        <Col sm><Button size="lg" className='btnFullHeight' block onClick={this.sendAction}>Returning</Button></Col>
                 </React.Fragment>
             } else if (lasthour.status =="Returning" || lasthour.status == "Complete" || lasthour.status == "To Shop") {
                 workorder = true
                 if (this.props.workorder && !this.state.workorder_show) {
                     travel = <Col sm>
-                        <Button size="lg" block onClick={this.sendAction}>Travel to site</Button>
+                        <Button size="lg" className='btnFullHeight' block onClick={this.sendAction}>Travel to site</Button>
                     </Col>
                     depot = <Col sm>
-                        <Button size="lg" block onClick={this.sendAction}>Start Depot</Button>
+                        <Button size="lg" className='btnFullHeight' block onClick={this.sendAction}>Start Depot</Button>
                     </Col>
                 }
             }
@@ -105,7 +105,7 @@ class QuickButtons extends Component {
                 <Button onClick={(e) => {e.preventDefault(); this.setState({workorder_show: false})}}>OK</Button>
             </div></Col>
         } else {
-            workorder_view = <Col sm><Button size="lg" block onClick={this.workorderPress}>{this.props.workorder ? `Change Workorder (${this.props.workorder})` : 'Enter Workorder'}</Button></Col>
+            workorder_view = <Col sm><Button size="lg" className='btnFullHeight' block onClick={this.workorderPress}>{this.props.workorder ? `Change Workorder (${this.props.workorder})` : 'Enter Workorder'}</Button></Col>
         }
 
 

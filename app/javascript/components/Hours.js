@@ -80,37 +80,42 @@ class Hours extends Component {
 
     }
     render() {
+        let name;
+        switch(this.props.editmode) {
+            case 'full':
+                name = 'hour';
+                break;
+            case 'update':
+            case 'status':
+                name = 'hour['+this.props.detailid+']';
+                break;
+            case 'more':
+                name = 'hour['+this.props.index+']';
+                break;
+        }
+
         let workorder;
-        if (this.props.editmode === 'full') {
-            workorder = <Form.Control type={'text'} value={this.props.workorder} onChange={this.handleWorkOrderChange}
-                               name={'hour[workorder]'} className={'form-control hour-record'} placeholder={'workorder'}/>
-        } else if (this.props.editmode === 'update') {
-            workorder = <Form.Control type={'text'} value={this.props.workorder} onChange={this.handleWorkOrderChange}
-                               name={'hour[' + this.props.detailid + '][workorder]'} className={'form-control hour-record'} placeholder={'workorder'}/>
+         if (['full', 'update', 'more'].includes(this.props.editmode)) {
+                workorder = <Form.Control type={'text'} value={this.props.workorder} onChange={this.handleWorkOrderChange}
+                               name={name+'[workorder]'} className={'form-control hour-record'} placeholder={'workorder'}/>
         } else {
             workorder = this.props.workorder;
         }
         let start = this.props.start;
-        if (this.props.editmode === 'full') {
-            start = <TimeInput initTime={this.props.start} onTimeChange={this.handleStartChange} name={'hour[start]'}
+        if (['full', 'update', 'more'].includes(this.props.editmode)) {
+            start = <TimeInput initTime={this.props.start} onTimeChange={this.handleStartChange} name={name+'[start]'}
                                className={'form-control hour-record'} placeholder={'start'}/>
-        } else if (this.props.editmode === 'update') {
-            start = <TimeInput initTime={this.props.start} onTimeChange={this.handleStartChange}
-                               name={'hour['+this.props.detailid+'][start]'} className={'form-control hour-record'}
-                               placeholder={'start'}/>
         }
         let end = this.props.end;
-        if (['full', 'update', 'status'].includes(this.props.editmode)) {
+        if (['full', 'update', 'status', 'more'].includes(this.props.editmode)) {
             end = <TimeInput initTime={this.props.end} onTimeChange={this.handleEndChange}
-                             name={['status', 'update'].includes(this.props.editmode) ? 'hour[' + this.props.detailid + '][end]' : 'hour[end]'}
-                             className={'form-control hour-record'} placeholder={'end'}/>
+                             name={name+'[end]'} className={'form-control hour-record'} placeholder={'end'}/>
         }
-
         let activity;
-        if (['full', 'update'].includes(this.props.editmode)) {
+        if (['full', 'update', 'more'].includes(this.props.editmode)) {
             activity = (<Form.Control as={'select'} value={this.props.activity ? this.props.activity : ''}
                                 onChange={this.handleActivityChange} className={'form-control hour-record'}
-                                name={['status', 'update'].includes(this.props.editmode) ? 'hour[' + this.props.detailid + '][activity]' : 'hour[activity]'}>
+                                name={name+'[activity]'}>
                 <option value={'Admin'}>Admin</option>
                 <option value={'Depot'}>Depot</option>
                 <option value={'On-site'}>On-site</option>
@@ -128,9 +133,9 @@ class Hours extends Component {
         }
 
         let status;
-        if (['full', 'update', 'status'].includes(this.props.editmode)) {
+        if (['full', 'update', 'status', 'more'].includes(this.props.editmode)) {
             status = (<Form.Control as={'select'} className={'form-control hour-record'}
-                name={['status', 'update'].includes(this.props.editmode) ? 'hour[' + this.props.detailid + '][status]' : 'hour[status]'}
+                name={name+'[status]'}
                 value={this.props.status ? this.props.status : ''} onChange={this.handleStatusChange} >
                 <option value={''} />
                 <option value={'Complete'}>Complete</option>
@@ -143,13 +148,12 @@ class Hours extends Component {
         } else {
             status = this.props.status
         }
-
         let detailid;
         if (this.props.editmode === 'full' && this.props.detailid) {
             detailid = <Form.Control type={'hidden'} name={'hour[detailid]'} value={this.props.detailid} className={'form-control hour-record'}/>
         }
         let edit;
-        if (['full', 'update'].includes(this.props.editmode)) {
+        if (['full', 'update', 'more'].includes(this.props.editmode)) {
 
         } else {
             let noted
@@ -165,7 +169,7 @@ class Hours extends Component {
         }
 
         let notes;
-        if (['full', 'update'].includes(this.props.editmode)) {
+        if (['full', 'update', 'more'].includes(this.props.editmode)) {
             notes = <Row>
                 <Col sm={10}>
                     <Form.Group controlId={"Notes" + this.props.detailid}>
