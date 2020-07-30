@@ -23,6 +23,7 @@ class Field extends Component {
             submitvisible: false,
             last_hour: null,
             new_hour: {},
+            more_hours: [],
         };
         this.hoursChange = this.hoursChange.bind(this);
     }
@@ -81,30 +82,34 @@ class Field extends Component {
         this.setState({workdate, new_hour, last_hour, newhourvisible, submitvisible}, this.fetchHours);
     }
     newHour = () => {
-        this.setState({newhourvisible: true, submitvisible: true})
-        let last_hour;
-        if (this.state.hours.length > 0) {
-            last_hour = this.state.hours[this.state.hours.length -1]
-            this.setState({hours: this.state.hours.slice(0,-1)})
-        }
-        const [prev_status, new_activity, new_status] = this.popularStateTransitions(last_hour)
-        if(prev_status) {
-            last_hour.status = prev_status
-            last_hour.editmode = 'status'
-            if(last_hour.end === null) {
-                last_hour.end = this.convertDateTimeto24HourTime(Date.now())
+        if (this.state.newhourvisible) {
+            this.setState({more_hours: [...this.state.more_hours, {editmode:'more'}]})
+        } else {
+            this.setState({newhourvisible: true, submitvisible: true})
+            let last_hour;
+            if (this.state.hours.length > 0) {
+                last_hour = this.state.hours[this.state.hours.length -1]
+                this.setState({hours: this.state.hours.slice(0,-1)})
             }
+            const [prev_status, new_activity, new_status] = this.popularStateTransitions(last_hour)
+            if(prev_status) {
+                last_hour.status = prev_status
+                last_hour.editmode = 'status'
+                if(last_hour.end === null) {
+                    last_hour.end = this.convertDateTimeto24HourTime(Date.now())
+                }
 
-        }
-        let new_hour = this.state.new_hour
-        new_hour.activity = new_activity
-        new_hour.status = new_status
-        if(last_hour.workorder) {
-            new_hour.workorder = last_hour.workorder
-        }
-        new_hour.start= this.convertDateTimeto24HourTime(Date.now())
+            }
+            let new_hour = this.state.new_hour
+            new_hour.activity = new_activity
+            new_hour.status = new_status
+            if(last_hour.workorder) {
+                new_hour.workorder = last_hour.workorder
+            }
+            new_hour.start= this.convertDateTimeto24HourTime(Date.now())
 
-        this.setState({last_hour, new_hour})
+            this.setState({last_hour, new_hour})
+        }
     };
     popularStateTransitions = (hour) => {
         if (typeof(hour) === 'undefined'){
@@ -126,19 +131,26 @@ class Field extends Component {
         }
     };
     hoursChange = (hourProperties) => {
-        if (typeof(hourProperties[0]) == 'object') {
-            const new_hour = Object.assign(this.state.new_hour, hourProperties[0])
+        if (typeof(hourProperties[1000]) == 'object') {
+            const new_hour = Object.assign(this.state.new_hour, hourProperties[1000])
             this.setState({new_hour})
-        } else if (this.state.last_hour && (typeof(hourProperties[this.state.last_hour.detailid]))) {
+        } else if (this.state.last_hour && (typeof(hourProperties[this.state.last_hour.detailid])== 'object' )) {
             const last_hour = Object.assign(this.state.last_hour, hourProperties[this.state.last_hour.detailid])
             this.setState({last_hour})
         } else {
             const detailid = Object.keys(hourProperties)[0]
-            let hours = this.state.hours
-            const idx = hours.findIndex(h => h.detailid == detailid)
-            hours[idx] = Object.assign(hours[idx], hourProperties[detailid])
-            const submitvisible = true
-            this.setState({hours, submitvisible})
+            if (detailid > 1000) {
+                let hours = this.state.hours
+                const idx = hours.findIndex(h => h.detailid == detailid)
+                hours[idx] = Object.assign(hours[idx], hourProperties[detailid])
+                const submitvisible = true
+                this.setState({hours, submitvisible})
+            } else {
+                let more_hours = this.state.more_hours
+                more_hours[detailid] = Object.assign(more_hours[detailid], hourProperties[detailid])
+                this.setState({more_hours})
+            }
+
         }
     }
 
@@ -202,15 +214,24 @@ class Field extends Component {
                                     visible={this.state.newhourvisible}
                                     hoursChange={this.hoursChange}
                                     editmode={'full'}
-                                    detailid={0}
+                                    detailid={1000}
                                     workorder={''}
                                     {...this.state.new_hour}
+
                                 />
+                            {this.state.more_hours.map((hour,key) => {
+                                return (<Hours key={"morehour"+key}
+                                               hoursChange={this.hoursChange} {...hour}
+                                               visible={true}
+                                               fetchHours = {this.fetchHours}
+                                               index = {key}
+                                               detailid={key}
+                                        />)
+                            })}
                                 <ButtonToolbar className={'field-buttons'}>
                                     <Button
                                         variant="primary"
                                         onClick={this.newHour}
-                                        disabled={this.state.newhourvisible}
                                     >
                                         <FontAwesomeIcon icon={faPlus} /> New
                                     </Button>

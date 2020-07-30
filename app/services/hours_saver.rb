@@ -3,9 +3,13 @@ class HoursSaver
   def initialize(params, initials)
     @initials = initials || 'on'
     params["hour"].keys.select { |k| /\A\d+\z/ === k}.each do |id| # 'hour' => ['123' => {...attributes}]
-      hour = Hour.with_pk!(id)   #raises exception if not found
-      hour.set params["hour"][id]
-      save hour
+      if id.to_i > 1000
+        hour = Hour.with_pk!(id)   #raises exception if not found
+        hour.set params["hour"][id]
+        save hour
+      else
+        create_hour(params['hour'][id].merge(techheader: params['hour']['techheader']))
+      end
     end
     create_hour(params['hour'])
   end

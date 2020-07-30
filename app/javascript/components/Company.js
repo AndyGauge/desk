@@ -32,13 +32,13 @@ function ConnectionSearchForm(props) {
 
 function MachineSearchForm(props) {
     const searchRef = useRef(null)
-    const scrollAndExpandConnection = () => {
+    const scrollAndExpandMachine = () => {
         expandMachine()
 
     }
     const expandMachine = useContext(AccordionContext) ? () => void 0 : useAccordionToggle('MachineCollapse');
     return (
-        <Form.Control {...props} onClick={scrollAndExpandConnection} type="text" id="machine_search" className={'searchinput'} ref={searchRef} />
+        <Form.Control {...props} onClick={scrollAndExpandMachine} type="text" id="machine_search" className={'searchinput'} ref={searchRef} />
     )
 }
 
@@ -596,7 +596,7 @@ class Company extends Component {
                           </Button>
                       </Col>
                       <Col sm>
-                          <MachineSearchForm value={this.state.connection_search} onChange={this.searchConnection}
+                          <ConnectionSearchForm value={this.state.connection_search} onChange={this.searchConnection}
                           onClick={(e) => window.scrollTo(0,e.target.offsetTop)}/>
                       </Col>
                   </Card.Header>
