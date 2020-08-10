@@ -17,6 +17,7 @@ Rails.application.routes.draw do
 	end
   resources :connections
   resources :contacts
+  resources :workorders
 	devise_for :users do
 		get 'sign_out' => 'devise/sessions#destroy'
 	end

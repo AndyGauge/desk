@@ -45,8 +45,7 @@ class User < ApplicationRecord
   end
 
   def need_two_factor_authentication?(request)
-    true || false
-    # TODO: only enforce CDESK users
+    employee_id
   end
 
   def send_two_factor_authentication_code(code)

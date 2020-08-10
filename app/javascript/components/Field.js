@@ -194,7 +194,7 @@ class Field extends Component {
                         <input type="hidden" name="hour[techheader]" value={this.state.techheader} readOnly={true} />
                         <QuickButtons hours={this.state.hours} show={!this.state.submitVisible} workorder={this.state.workorder}
                             updateWorkorder={(e) => this.setState({workorder: e.target.value})} tech={this.props.tech}
-                            update={this.fetchHours}
+                            update={this.fetchHours} setWorkorder={(workorder) => this.setState({workorder})}
                         />
                     <Row className="d-none d-md-flex hours-header">
                         <Col sm>Work Order</Col>

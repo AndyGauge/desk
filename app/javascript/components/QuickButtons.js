@@ -3,17 +3,59 @@ import Button from 'react-bootstrap/Button'
 import Col from 'react-bootstrap/Col'
 import Form from 'react-bootstrap/Form'
 import Row from 'react-bootstrap/Row'
+import Modal from "react-bootstrap/Modal";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSearch } from '@fortawesome/free-solid-svg-icons'
 
+function ModalWorkorders(props) {
+    return (
+        <Modal show = {props.open} size={"lg"} centered >
+            <Modal.Header>
+                <Modal.Title id ="customer-details-modal-title">
+                    Workorders
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                {props.workorders.map( workorder => (
+                            <React.Fragment key={'workorder'+workorder.id}>
+                                <table onClick={() => props.selectWorkorder(workorder.workorder)} className={'table'} >
+                                    <tbody>
+                                    <tr><th style={{textAlign: 'center'}}>{workorder.workorder}</th></tr>
+                                    <tr><th>{workorder.customer}</th></tr>
+                                    <tr><th>{workorder.description}</th></tr>
+                                    </tbody>
+                                </table>
+
+                            </React.Fragment>
+
+                        )
+                    )}
+
+            </Modal.Body>
+
+            <Modal.Footer>
+                <Button onClick={props.close}>Close</Button>
+            </Modal.Footer>
+        </Modal>
+    )
+}
 
 class QuickButtons extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            workorder_show: false
+            workorder_show: false,
+            workorders: [],
+            workorder_modal: false,
         }
         this.sendAction=this.sendAction.bind(this)
         this.workorderPress=this.workorderPress.bind(this)
         this.workorderInput = React.createRef();
+    }
+
+    componentDidMount() {
+        this.fetchController = new AbortController();
+        this.fetchWorkorders();
     }
 
     workorderPress = (e) => {
@@ -42,6 +84,16 @@ class QuickButtons extends Component {
             body: formData
         })
             .then(this.props.update)
+    }
+    fetchWorkorders = () => {
+        const signal = this.fetchController.signal;
+        fetch('/workorders', {signal})
+            .then(response => response.json())
+            .then(workorders => this.setState({workorders}))
+            .catch(error => {
+                if (error.name === 'AbortError') return;
+                throw error;
+            });
     }
 
     render() {
@@ -100,8 +152,9 @@ class QuickButtons extends Component {
         }
         let workorder_view
         if (this.state.workorder_show){
-            workorder_view = <Col sm><div class="input-group">
+            workorder_view = <Col sm><div className="input-group">
                 <Form.Control value={this.props.workorder} onChange={this.props.updateWorkorder} ref={this.workorderInput}></Form.Control>
+                <Button onClick={(e) => {e.preventDefault(); this.setState({workorder_modal: true})}}><FontAwesomeIcon icon={faSearch} /></Button>
                 <Button onClick={(e) => {e.preventDefault(); this.setState({workorder_show: false})}}>OK</Button>
             </div></Col>
         } else {
@@ -110,16 +163,20 @@ class QuickButtons extends Component {
 
 
         return(
-            <Row className='quickbuttons' >
+            <React.Fragment>
+                <ModalWorkorders open={this.state.workorder_modal} workorders={this.state.workorders} close={() => this.setState({workorder_modal: false})}
+                selectWorkorder={(workorder) => {this.setState({workorder_modal: false});this.props.setWorkorder(workorder)}}/>
+                <Row className='quickbuttons' >
 
-                {workorder && workorder_view}
-                {depot}
-                {travel}
-                {complete}
-                {returning}
-                {lunch}
+                    {workorder && workorder_view}
+                    {depot}
+                    {travel}
+                    {complete}
+                    {returning}
+                    {lunch}
 
-            </Row>
+                </Row>
+            </React.Fragment>
         )
     }
 
