@@ -1,8 +1,9 @@
 class HoursController < ApplicationController
 
-  before_action :set_tech
+  before_action :set_tech, :except => [:timetable]
   skip_before_action :authenticate_user!, :only => [:timetable]
   before_action :whitelisted, :only => [:timetable]
+  layout false, :only => [:timetable]
 
   def index
 
