@@ -13,7 +13,9 @@ Rails.application.routes.draw do
 	resources :hours do
 	  collection do
 	    post :action
-	  end
+      get :timetable
+    end
+
 	end
   resources :connections
   resources :contacts
