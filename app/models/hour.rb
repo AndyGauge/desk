@@ -8,5 +8,8 @@ class Hour < Sequel::Model(:hoursdetail)
 		validates_presence :workorder
 		validates_presence :techheader
 	end
+	def workorder_detail
+		Workorder.where(workorder: workorder).first
+	end
 
 end

@@ -1,6 +1,8 @@
 class HoursController < ApplicationController
 
   before_action :set_tech
+  skip_before_action :authenticate_user!, :only => [:timetable]
+  before_action :whitelisted, :only => [:timetable]
 
   def index
 
@@ -38,9 +40,17 @@ class HoursController < ApplicationController
     render json: { hours: cleanup_binary_data(techdate.hours), techheader: techdate.id }
   end
 
+  def timetable
+    @date = params[:date] ? Date.parse(params[:date]) : Date.today
+    @techdates = TechDate.where(workdate: @date).order(:techid).all
+    p @techdates
+    @techs = @techdates.map(&:techid).uniq
+  end
+
   private
   def set_tech
     @tech = current_user.tech
+
   end
 
 end
