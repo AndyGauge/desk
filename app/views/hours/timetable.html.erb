@@ -5,15 +5,40 @@
   a {
     text-decoration: none;
   }
-  a.time-entry.ActOn-site {
-       background-color: #2d89da;
-     }
-  a.time-entry.ActTravel {
-    background-color: #1e7e34;
+  a.time-entry.ActAdmin {
+    background-color: #66CCFF;
   }
   a.time-entry.ActDepot {
-    background-color: #a72be6;
+    background-color: #3399FF;
   }
+  a.time-entry.ActOn-site {
+       background-color: #375625;
+     }
+  a.time-entry.ActOT.Depot {
+    background-color: #3399FF;
+  }
+  a.time-entry.ActOT.On-site {
+    background-color: #375625;
+  }
+  a.time-entry.ActOT.Travel {
+    background-color: #606060;
+  }
+  a.time-entry.ActRemote {
+    background-color: #3399FF;
+  }
+  a.time-entry.ActSick {
+    background-color: #C2D087;
+  }
+  a.time-entry.ActTravel {
+    background-color: #606060;
+  }
+  a.time-entry.ActVacation {
+    background-color: #3F8A80;
+  }
+  a.time-entry.ActxTraining {
+    background-color: #66CCFF;
+  }
+
   .timetable {
     font-family: sans-serif;
   }
@@ -30,10 +55,10 @@
   timetable.addLocations(<%= raw @techs %>)
   <% @techdates.each do |td| %>
     <% td.hours.each do |hour| %>
-      timetable.addEvent('<%= raw(hour.workorder_detail&.site || hour.workorder) %>',
+      timetable.addEvent("<%= raw(hour.workorder_detail&.site || hour.workorder) %>",
           '<%= td.techid %>',
           new Date(<%=@date.year %>, <%=@date.month %>, <%=@date.day %>, <%= hour.start.hour %>, <%= hour.start.min %>),
-          new Date(<%=@date.year %>, <%=@date.month %>, <%=@date.day %>, <%= hour.end ? hour.end.hour : (@date == Date.today ? Time.now.hour : hour.start.hour+1) %>, <%= hour.end ? hour.end.min : (@date == Date.today ? Time.now.hour : hour.start.min) %>),
+          new Date(<%=@date.year %>, <%=@date.month %>, <%=@date.day %>, <%= hour.end ? hour.end.hour : (@date == Date.today ? Time.now.hour : hour.start.hour+1) %>, <%= hour.end ? hour.end.min : (@date == Date.today ? Time.now.min : hour.start.min) %>),
           {class: 'Act<%= hour.activity %>',url: "http://ccmsql/ReportServer/Pages/ReportViewer.aspx?%2fCapture+Reports%2fWork+Order+Lookup&rs%3aCommand=Render&WOnum=<%=hour.workorder %>"}
       )
     <% end %>
