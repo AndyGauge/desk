@@ -41,7 +41,7 @@ class User < ApplicationRecord
   end
 
   def timeout_in
-    5.days
+    30.days
   end
 
   def need_two_factor_authentication?(request)
