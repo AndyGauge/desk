@@ -1,8 +1,8 @@
 class HoursController < ApplicationController
 
-  before_action :set_tech, :except => [:timetable]
-  skip_before_action :authenticate_user!, :only => [:timetable]
-  before_action :whitelisted, :only => [:timetable]
+  before_action :set_tech, :except => [:timetable, :calendar]
+  skip_before_action :authenticate_user!, :only => [:timetable, :calendar]
+  before_action :whitelisted, :only => [:timetable, :calendar]
   layout false, :only => [:timetable]
 
   def index
@@ -46,6 +46,10 @@ class HoursController < ApplicationController
     @techdates = TechDate.where(workdate: @date).order(:techid).all
     p @techdates
     @techs = @techdates.map(&:techid).uniq
+  end
+
+  def calendar
+
   end
 
   private
