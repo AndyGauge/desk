@@ -13,7 +13,7 @@ Rails.application.routes.draw do
 	resources :hours do
 	  collection do
 	    post :action
-      get :timetable
+      get :timetable, :calendar
     end
 
 	end

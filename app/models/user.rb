@@ -45,6 +45,7 @@ class User < ApplicationRecord
   end
 
   def need_two_factor_authentication?(request)
+
     employee_id
   end
 

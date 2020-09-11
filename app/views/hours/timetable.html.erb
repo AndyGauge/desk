@@ -39,7 +39,7 @@
     background-color: #66CCFF;
   }
 
-  .timetable {
+  .timetable {g
     font-family: sans-serif;
   }
 </style>
@@ -59,7 +59,7 @@
           '<%= td.techid %>',
           new Date(<%=@date.year %>, <%=@date.month %>, <%=@date.day %>, <%= hour.start.hour %>, <%= hour.start.min %>),
           new Date(<%=@date.year %>, <%=@date.month %>, <%=@date.day %>, <%= hour.end ? hour.end.hour : (@date == Date.today ? Time.now.hour : hour.start.hour+1) %>, <%= hour.end ? hour.end.min : (@date == Date.today ? Time.now.min : hour.start.min) %>),
-          {class: 'Act<%= hour.activity %>',url: "http://ccmsql/ReportServer/Pages/ReportViewer.aspx?%2fCapture+Reports%2fWork+Order+Lookup&rs%3aCommand=Render&WOnum=<%=hour.workorder %>"}
+          {class: 'Act<%= hour.activity %>',url: "http://ccmsql/ReportServer/Pages/ReportViewer.aspx?%2fCapture+Reports%2fWork+Order+Lookup&rs%3aCommand=Render&WOnum=<%=hour.workorder %>&rs:embed=true"}
       )
     <% end %>
   <% end %>
