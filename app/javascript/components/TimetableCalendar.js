@@ -13,7 +13,7 @@ class TimetableCalendar extends Component {
         }
     }
     changeDate = (workdate) => {
-        this.setState({workdate, timetable: '/hours/timetable?date=' + this.getWorkdateISODate(workdate)})
+        window.open('/hours/timetable?cal=yes&date=' + this.getWorkdateISODate(workdate))
     }
     getWorkdateISODate = (workdate) => {
         let offsetTime = new Date(workdate.getTime())
@@ -28,12 +28,6 @@ class TimetableCalendar extends Component {
                     onChange={this.changeDate}
                     value={this.state.workdate}
                     />
-                </div>
-                <div>
-                    <iframe src={this.state.timetable}
-                            key={'timetable'}
-                            width={1080}
-                            height={800}/>
                 </div>
             </React.Fragment>
             )
