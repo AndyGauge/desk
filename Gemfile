@@ -30,6 +30,7 @@ gem "devise_ldap_authenticatable"
 gem 'net-ldap'
 gem 'two_factor_authentication'
 gem 'sequel'
+gem 'simple_calendar'
 
 #Connect to MSSQL
 gem 'tiny_tds'

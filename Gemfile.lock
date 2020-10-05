@@ -193,6 +193,8 @@ GEM
       childprocess (>= 0.5, < 4.0)
       rubyzip (>= 1.2.2)
     sequel (5.34.0)
+    simple_calendar (2.4.1)
+      rails (>= 3.0)
     spring (2.1.0)
     spring-watcher-listen (2.0.1)
       listen (>= 2.7, < 4.0)
@@ -262,6 +264,7 @@ DEPENDENCIES
   sass-rails (>= 6)
   selenium-webdriver
   sequel
+  simple_calendar
   spring
   spring-watcher-listen (~> 2.0.0)
   sqlite3 (~> 1.4)
