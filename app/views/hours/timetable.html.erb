@@ -44,7 +44,11 @@
 </style>
 
 <body>
-
+<% if params[:cal] %>
+  <%= month_calendar do |date| %>
+    <a href="/hours/timetable?cal=yes&date=<%= date %>"><%= date.day %></a>
+  <% end %>
+<% end %>
 <div class="timetable" style="width: 1060px"></div>
 </body>
 
