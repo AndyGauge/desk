@@ -46,8 +46,10 @@
 <body>
 <% if params[:cal] %>
   <%= month_calendar do |date| %>
-    <a href="/hours/timetable?cal=yes&date=<%= date %>"><%= date.day %></a>
+    <a href="/hours/timetable?cal=yes&date=<%= date %>&start_date=<%=date%>"><%= date.day %></a>
   <% end %>
+
+  <h3 style="padding-left:500px"><%=@date.strftime('%m/%d/%Y') %></h3>
 <% end %>
 <div class="timetable" style="width: 1060px"></div>
 </body>
