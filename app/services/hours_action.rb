@@ -60,9 +60,10 @@ class HoursAction
 
   end
 
-  def end_last(status: "Complete", notes: '', update_status: false)
-    if @last_hour && (@last_hour.status == '' || update_status)
-       @last_hour.update({end: @now, status: status, hours: (@now - @last_hour.start) / 3600.0, notes: notes})
+  def end_last(status: "Complete", notes: nil, update_status: false)
+    if @last_hour && (@last_hour.status == '' || update_status || !@last_hour.end)
+      notes ||= @last_hour.notes
+      @last_hour.update({end: @now, status: status, hours: (@now - @last_hour.start) / 3600.0, notes:notes})
     end
   end
 

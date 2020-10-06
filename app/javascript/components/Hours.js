@@ -76,8 +76,12 @@ class Hours extends Component {
             this.setState({modalOpen: false})
             this.props.fetchHours()
         })
-
-
+    }
+    zeroPad = (time) => {
+        if(time === null){
+            return ''
+        }
+        return ("0" + time).slice(-5)
     }
     render() {
         let name;
@@ -103,12 +107,12 @@ class Hours extends Component {
         }
         let start = this.props.start;
         if (['full', 'update', 'more'].includes(this.props.editmode)) {
-            start = <TimeInput initTime={this.props.start} onTimeChange={this.handleStartChange} name={name+'[start]'}
-                               className={'form-control hour-record'} placeholder={'start'}/>
+            start = <TimeInput initTime={this.zeroPad(this.props.start)} onTimeChange={this.handleStartChange}
+                               className={'form-control hour-record'} placeholder={'start'} name={name+'[start]'}/>
         }
         let end = this.props.end;
         if (['full', 'update', 'status', 'more'].includes(this.props.editmode)) {
-            end = <TimeInput initTime={this.props.end} onTimeChange={this.handleEndChange}
+            end = <TimeInput initTime={this.zeroPad(this.props.end)} onTimeChange={this.handleEndChange}
                              name={name+'[end]'} className={'form-control hour-record'} placeholder={'end'}/>
         }
         let activity;

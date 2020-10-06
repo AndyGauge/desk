@@ -24,6 +24,7 @@ class Field extends Component {
             last_hour: null,
             new_hour: {},
             more_hours: [],
+            notice_hours: false,
         };
         this.hoursChange = this.hoursChange.bind(this);
     }
@@ -153,6 +154,12 @@ class Field extends Component {
 
         }
     }
+    quickUpdate = (e) => {
+        this.fetchHours()
+        if (this.state.hours.length > 2) {
+            this.setState({notice_hours:true})
+        }
+    }
 
     cancelForm = () => {
 
@@ -181,6 +188,13 @@ class Field extends Component {
                 {...this.state.last_hour}
             />
         }
+        let notice
+        if (this.state.notice_hours) {
+
+            notice = <ul> {this.state.hours.slice(-2).reverse().map((hour) => {
+                return <li>{hour.activity} {hour.start} - {hour.end} </li>
+            })} </ul>
+        }
         const csrf_token = document.head.querySelector("[name~=csrf-token]").content
         if (this.state.techheader) {
             return(
@@ -194,8 +208,9 @@ class Field extends Component {
                         <input type="hidden" name="hour[techheader]" value={this.state.techheader} readOnly={true} />
                         <QuickButtons hours={this.state.hours} show={!this.state.submitVisible} workorder={this.state.workorder}
                             updateWorkorder={(e) => this.setState({workorder: e.target.value})} tech={this.props.tech}
-                            update={this.fetchHours} setWorkorder={(workorder) => this.setState({workorder})}
+                            update={this.quickUpdate} setWorkorder={(workorder) => this.setState({workorder})}
                         />
+                        {notice}
                     <Row className="d-none d-md-flex hours-header">
                         <Col sm>Work Order</Col>
                         <Col sm>Start</Col>
