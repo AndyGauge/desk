@@ -192,7 +192,7 @@ class Field extends Component {
         if (this.state.notice_hours) {
 
             notice = <ul> {this.state.hours.slice(-2).reverse().map((hour) => {
-                return <li>{hour.activity} {hour.start} - {hour.end} </li>
+                return <li>{hour.workorder} {hour.activity} {hour.start} - {hour.end} </li>
             })} </ul>
         }
         const csrf_token = document.head.querySelector("[name~=csrf-token]").content

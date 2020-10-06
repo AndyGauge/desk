@@ -78,7 +78,7 @@ class Hours extends Component {
         })
     }
     zeroPad = (time) => {
-        if(time === null){
+        if(time === null || time === undefined){
             return ''
         }
         return ("0" + time).slice(-5)
@@ -214,12 +214,12 @@ class Hours extends Component {
                                 </Form.Group>
                                 <Form.Group controlId={"editStart"}>
                                     <Form.Label>Start</Form.Label>
-                                    <TimeInput initTime={this.props.start} onTimeChange={this.handleStartChange} name={'hour[start]'}
+                                    <TimeInput initTime={this.zeroPad(this.props.start)} onTimeChange={this.handleStartChange} name={'hour[start]'}
                                                className={'form-control hour-record'} placeholder={'start'}/>
                                 </Form.Group>
                                 <Form.Group controlId={"editEnd"}>
                                     <Form.Label>End</Form.Label>
-                                    <TimeInput initTime={this.props.end} onTimeChange={this.handleEndChange}
+                                    <TimeInput initTime={this.zeroPad(this.props.end)} onTimeChange={this.handleEndChange}
                                                name={['status', 'update'].includes(this.props.editmode) ? 'hour[' + this.props.detailid + '][end]' : 'hour[end]'}
                                                className={'form-control hour-record'} placeholder={'end'}/>
                                 </Form.Group>
