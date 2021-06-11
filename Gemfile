@@ -31,7 +31,7 @@ gem 'net-ldap'
 gem 'two_factor_authentication'
 gem 'sequel'
 gem 'simple_calendar'
-gem 'synnex', path: '/mnt/c/git/synnex-gem'
+gem 'synnex'
 
 #Connect to MSSQL
 gem 'tiny_tds'
