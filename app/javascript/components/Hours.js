@@ -124,10 +124,8 @@ class Hours extends Component {
                 <option value={'Depot'}>Depot</option>
                 <option value={'On-site'}>On-site</option>
                 <option value={'Remote'}>Remote</option>
-                <option value={'Sick'}>Sick</option>
                 <option value={'xTraining'}>xTraining</option>
                 <option value={'Travel'}>Travel</option>
-                <option value={'Vacation'}>Vacation</option>
                 <option value={'OT On-Site'}>OT On-Site</option>
                 <option value={'OT Travel'}>OT Travel</option>
                 <option value={'OT Depot'}>OT Depot</option>

@@ -40,6 +40,10 @@ class User < ApplicationRecord
     Employee[employee_id]
   end
 
+  def self.authenticate_by_jwt(jwt)
+    Employee.first(jwt: jwt)&.user
+  end
+
   def timeout_in
     30.days
   end

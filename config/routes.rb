@@ -22,7 +22,16 @@ Rails.application.routes.draw do
   resources :workorders
 	devise_for :users do
 		get 'sign_out' => 'devise/sessions#destroy'
-	end
+  end
+  namespace :api, defaults: {format: :json} do
+    namespace :v1 do
+      resources :synnex
+      resources :synnex_subscription
+    end
+  end
+
+
+
   root 'hours#index'
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end
