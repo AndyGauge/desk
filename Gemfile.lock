@@ -1,9 +1,3 @@
-PATH
-  remote: /mnt/c/git/synnex-gem
-  specs:
-    synnex (0.1.8)
-      httparty
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -219,6 +213,8 @@ GEM
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
     sqlite3 (1.4.2)
+    synnex (0.1.6)
+      httparty
     thor (1.1.0)
     thread_safe (0.3.6)
     tilt (2.0.10)
@@ -280,7 +276,7 @@ DEPENDENCIES
   spring
   spring-watcher-listen (~> 2.0.0)
   sqlite3 (~> 1.4)
-  synnex!
+  synnex
   tiny_tds
   turbolinks (~> 5)
   two_factor_authentication
