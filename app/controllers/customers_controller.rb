@@ -1,5 +1,7 @@
 class CustomersController < ApplicationController
-  before_action :set_customer, only: [:show, :edit, :update, :destroy, :contacts, :connections, :incidents]
+  before_action :set_customer, only: [:show, :edit, :update, :destroy, :contacts, :connections, :incidents, :sites, :machines]
+  before_action :whitelisted
+  before_action :cdesk_authorized
 
   # GET /customers
   # GET /customers.json
@@ -10,7 +12,7 @@ class CustomersController < ApplicationController
   # GET /customers/1
   # GET /customers/1.json
   def show
-    set_device_types
+    set_device_types_and_actions
   end
 
   # GET /customers/new
@@ -74,6 +76,14 @@ class CustomersController < ApplicationController
     render json: FetchIncidentsService.new.by_customer(@customer.id)
   end
 
+  def sites
+    render json: @customer.sites.map { |s| s.as_json.merge(map_link: s.map_link) }
+  end
+
+  def machines
+    render json: @customer.machines.order(:machname).map { |m| m.as_json.merge(live_connect: m.live_connect)}
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_customer
@@ -85,7 +95,9 @@ class CustomersController < ApplicationController
       params.require(:customer).permit(:company, :contact, :phone, :address, :city, :state, :cdeskid)
     end
 
-  def set_device_types
+  def set_device_types_and_actions
     @device_types =  Desk::DataSource.cdesk[:"lu- Device Type"].all.map{ |type| type[:"device type"]}.sort
+    @actions = Desk::DataSource.cdesk[:"lu- Actions"].all.map{|act| act[:action]}
+    @employee_id = {employee_id: current_user.employee_id}
   end
 end

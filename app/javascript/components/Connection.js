@@ -33,7 +33,7 @@ class Connection extends Component {
         this.props.connectionChange({[this.props.id]: {address: e.target.value}})
     };
     handleUserChange = (e) => {
-        this.props.connectionChange({[this.props.id]: {'user name': e.target.value}})
+        this.props.connectionChange({[this.props.id]: {'user id': e.target.value}})
     }
     handlePasswordChange = (e) => {
         this.props.connectionChange({[this.props.id]: {password: e.target.value}})

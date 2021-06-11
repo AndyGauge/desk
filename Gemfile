@@ -30,12 +30,16 @@ gem "devise_ldap_authenticatable"
 gem 'net-ldap'
 gem 'two_factor_authentication'
 gem 'sequel'
+gem 'simple_calendar'
+gem 'synnex'
 
 #Connect to MSSQL
 gem 'tiny_tds'
 
 # Front-end shenanigans
 gem 'react-rails'
+
+gem 'netaddr'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.2', require: false

@@ -8,6 +8,8 @@ import { faPlus, faCheck } from '@fortawesome/free-solid-svg-icons'
 import Row from 'react-bootstrap/Row'
 import PropTypes from "prop-types";
 import Hours from './Hours'
+import QuickButtons from './QuickButtons'
+
 class Field extends Component {
     constructor(props) {
         super(props);
@@ -21,6 +23,8 @@ class Field extends Component {
             submitvisible: false,
             last_hour: null,
             new_hour: {},
+            more_hours: [],
+            notice_hours: false,
         };
         this.hoursChange = this.hoursChange.bind(this);
     }
@@ -55,7 +59,11 @@ class Field extends Component {
             return hour
         })
         let techheader = response.techheader
-        this.setState({hours, techheader})
+        let workorder=this.state.workorder
+        if (!workorder && hours.length > 0) {
+            workorder = hours[hours.length-1].workorder
+        }
+        this.setState({hours, techheader, workorder})
     }
     convertDateTimeto24HourTime = (datetime) => {
         if (datetime) {
@@ -75,30 +83,34 @@ class Field extends Component {
         this.setState({workdate, new_hour, last_hour, newhourvisible, submitvisible}, this.fetchHours);
     }
     newHour = () => {
-        this.setState({newhourvisible: true, submitvisible: true})
-        let last_hour;
-        if (this.state.hours.length > 0) {
-            last_hour = this.state.hours[this.state.hours.length -1]
-            this.setState({hours: this.state.hours.slice(0,-1)})
-        }
-        const [prev_status, new_activity, new_status] = this.popularStateTransitions(last_hour)
-        if(prev_status) {
-            last_hour.status = prev_status
-            last_hour.editmode = 'status'
-            if(last_hour.end === null) {
-                last_hour.end = this.convertDateTimeto24HourTime(Date.now())
+        if (this.state.newhourvisible) {
+            this.setState({more_hours: [...this.state.more_hours, {editmode:'more'}]})
+        } else {
+            this.setState({newhourvisible: true, submitvisible: true})
+            let last_hour;
+            if (this.state.hours.length > 0) {
+                last_hour = this.state.hours[this.state.hours.length -1]
+                this.setState({hours: this.state.hours.slice(0,-1)})
             }
+            const [prev_status, new_activity, new_status] = this.popularStateTransitions(last_hour)
+            if(prev_status) {
+                last_hour.status = prev_status
+                last_hour.editmode = 'status'
+                if(last_hour.end === null) {
+                    last_hour.end = this.convertDateTimeto24HourTime(Date.now())
+                }
 
-        }
-        let new_hour = this.state.new_hour
-        new_hour.activity = new_activity
-        new_hour.status = new_status
-        if(last_hour.workorder) {
-            new_hour.workorder = last_hour.workorder
-        }
-        new_hour.start= this.convertDateTimeto24HourTime(Date.now())
+            }
+            let new_hour = this.state.new_hour
+            new_hour.activity = new_activity
+            new_hour.status = new_status
+            if(last_hour.workorder) {
+                new_hour.workorder = last_hour.workorder
+            }
+            new_hour.start= this.convertDateTimeto24HourTime(Date.now())
 
-        this.setState({last_hour, new_hour})
+            this.setState({last_hour, new_hour})
+        }
     };
     popularStateTransitions = (hour) => {
         if (typeof(hour) === 'undefined'){
@@ -120,21 +132,35 @@ class Field extends Component {
         }
     };
     hoursChange = (hourProperties) => {
-        if (typeof(hourProperties[0]) == 'object') {
-            const new_hour = Object.assign(this.state.new_hour, hourProperties[0])
+        if (typeof(hourProperties[1000]) == 'object') {
+            const new_hour = Object.assign(this.state.new_hour, hourProperties[1000])
             this.setState({new_hour})
-        } else if (this.state.last_hour && (typeof(hourProperties[this.state.last_hour.detailid]))) {
+        } else if (this.state.last_hour && (typeof(hourProperties[this.state.last_hour.detailid])== 'object' )) {
             const last_hour = Object.assign(this.state.last_hour, hourProperties[this.state.last_hour.detailid])
             this.setState({last_hour})
         } else {
             const detailid = Object.keys(hourProperties)[0]
-            let hours = this.state.hours
-            const idx = hours.findIndex(h => h.detailid == detailid)
-            hours[idx] = Object.assign(hours[idx], hourProperties[detailid])
-            const submitvisible = true
-            this.setState({hours, submitvisible})
+            if (detailid > 1000) {
+                let hours = this.state.hours
+                const idx = hours.findIndex(h => h.detailid == detailid)
+                hours[idx] = Object.assign(hours[idx], hourProperties[detailid])
+                const submitvisible = true
+                this.setState({hours, submitvisible})
+            } else {
+                let more_hours = this.state.more_hours
+                more_hours[detailid] = Object.assign(more_hours[detailid], hourProperties[detailid])
+                this.setState({more_hours})
+            }
+
         }
     }
+    quickUpdate = (e) => {
+        this.fetchHours()
+        if (this.state.hours.length > 2) {
+            this.setState({notice_hours:true})
+        }
+    }
+
     cancelForm = () => {
 
         this.setState({
@@ -147,8 +173,10 @@ class Field extends Component {
     }
     render() {
         let hours = this.state.hours.map((hour,key) => {
-               // this.setState({workorder: hour.workorder, techheader: hour.techheader})
-                return (<Hours key={"hour"+hour.detailid} hoursChange={this.hoursChange} {...hour} visible={true} />)
+                return (<Hours key={"hour"+hour.detailid}
+                               hoursChange={this.hoursChange} {...hour}
+                               visible={true}
+                               fetchHours = {this.fetchHours}/>)
             })
         let partial_edit
         if (this.state.last_hour) {
@@ -159,6 +187,13 @@ class Field extends Component {
                 hoursChange={this.hoursChange}
                 {...this.state.last_hour}
             />
+        }
+        let notice
+        if (this.state.notice_hours) {
+
+            notice = <ul> {this.state.hours.slice(-2).reverse().map((hour) => {
+                return <li>{hour.workorder} {hour.activity} {hour.start} - {hour.end} </li>
+            })} </ul>
         }
         const csrf_token = document.head.querySelector("[name~=csrf-token]").content
         if (this.state.techheader) {
@@ -171,6 +206,11 @@ class Field extends Component {
                     <form action={'/hours'} method={'post'}>
                         <input type="hidden" name="authenticity_token" value={csrf_token} readOnly={true} />
                         <input type="hidden" name="hour[techheader]" value={this.state.techheader} readOnly={true} />
+                        <QuickButtons hours={this.state.hours} show={!this.state.submitVisible} workorder={this.state.workorder}
+                            updateWorkorder={(e) => this.setState({workorder: e.target.value})} tech={this.props.tech}
+                            update={this.quickUpdate} setWorkorder={(workorder) => this.setState({workorder})}
+                        />
+                        {notice}
                     <Row className="d-none d-md-flex hours-header">
                         <Col sm>Work Order</Col>
                         <Col sm>Start</Col>
@@ -189,15 +229,24 @@ class Field extends Component {
                                     visible={this.state.newhourvisible}
                                     hoursChange={this.hoursChange}
                                     editmode={'full'}
-                                    detailid={0}
+                                    detailid={1000}
                                     workorder={''}
                                     {...this.state.new_hour}
+
                                 />
+                            {this.state.more_hours.map((hour,key) => {
+                                return (<Hours key={"morehour"+key}
+                                               hoursChange={this.hoursChange} {...hour}
+                                               visible={true}
+                                               fetchHours = {this.fetchHours}
+                                               index = {key}
+                                               detailid={key}
+                                        />)
+                            })}
                                 <ButtonToolbar className={'field-buttons'}>
                                     <Button
                                         variant="primary"
                                         onClick={this.newHour}
-                                        disabled={this.state.newhourvisible}
                                     >
                                         <FontAwesomeIcon icon={faPlus} /> New
                                     </Button>

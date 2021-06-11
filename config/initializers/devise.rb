@@ -12,13 +12,13 @@ Devise.setup do |config|
    config.max_login_attempts = 5  # Maximum second factor attempts count.
    config.allowed_otp_drift_seconds = 180  # Allowed TOTP time drift between client and server.
    config.otp_length = 6  # TOTP code length
-   config.direct_otp_valid_for = 3.minutes  # Time before direct OTP becomes invalid
-   config.direct_otp_length = 6  # Direct OTP code length
-   config.remember_otp_session_for_seconds = 30.days  # Time before browser has to perform 2fA again. Default is 0.
+   config.direct_otp_valid_for = 10.minutes  # Time before direct OTP becomes invalid
+   config.direct_otp_length = 6  # Direct OTP code length``
+   config.remember_otp_session_for_seconds = 30.days
    config.otp_secret_encryption_key = ENV['OTP_SECRET_ENCRYPTION_KEY']
    config.second_factor_resource_id = 'id' # Field or method name used to set value for 2fA remember cookie
    config.delete_cookie_on_logout = false # Delete cookie when user signs out, to force 2fA again on login
-
+   config.sign_out_via = :get
 
   config.warden do |manager|
 
@@ -276,7 +276,7 @@ Devise.setup do |config|
   # config.navigational_formats = ['*/*', :html]
 
   # The default HTTP method used to sign out a resource. Default is :delete.
-  config.sign_out_via = :delete
+  config.sign_out_via = :get
 
   # ==> OmniAuth
   # Add a new OmniAuth provider. Check the wiki for more information on setting

@@ -105,3 +105,41 @@ span.customer-title {
   padding-bottom: 10px;
   font-weight: 600;
 }
+
+//Date Picker
+.react-date-picker__wrapper {
+  font-size: 1.3rem;
+  width: 100%;
+}
+.react-date-picker__inputGroup {
+  width: 100%;
+  padding: 2px 2px;
+}
+@media (max-width: 576px) {
+  .react-date-picker {
+    width: 100%
+  }
+}
+
+.quickbuttons.row {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.quickbuttons.row > .col-sm {
+  padding-bottom: 5px;
+}
+
+.btnFullHeight {
+  height: 100%;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+@media all and (max-width:480px) {
+  .btn-block-sm { width: 100%; display:block; }
+}

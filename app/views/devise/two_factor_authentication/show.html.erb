@@ -1,0 +1,12 @@
+<h2>Two Factor</h2>
+<p>check for your two factor code in your e-mail / text messages</p>
+<%= form_tag([resource_name, :two_factor_authentication], :method => :put, class: 'form-inline') do %>
+  <%= number_field_tag :code,nil, class: 'form-control', autocomplete:'off' %>
+  <%= submit_tag "Log in!", class: 'btn btn-secondary btn-block-sm' %>
+<% end %>
+
+<ul class="list-group list-group-flush">
+  <li class="list-group-item"><%= link_to "Resend Code", send("resend_code_#{resource_name}_two_factor_authentication_path"), action: :get %></li>
+  <li class="list-group-item"><%= link_to "Sign out", destroy_user_session_path, :method => :get %></li>
+</ul>
+
