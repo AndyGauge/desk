@@ -36,8 +36,9 @@ class HoursController < ApplicationController
     HoursAction.new(params[:act], params[:workorder], current_user.tech).save
   end
   def dated
-    techdate = TechDate.lookup(params[:tech], Date.parse(params[:date]))
-    render json: { hours: cleanup_binary_data(techdate.hours), techheader: techdate.id }
+    techdate = TechDate.lookup(params[:tech], date=Date.parse(params[:date]))
+    hours = date == Date.today ? techdate.past_hours : techdate.hours
+    render json: { hours: cleanup_binary_data(hours), techheader: techdate.id }
   end
 
   def timetable

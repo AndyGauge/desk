@@ -6,4 +6,8 @@ class TechDate < Sequel::Model("Tech Header".to_sym)
 		self.where( techid: tech, workdate: date...date+1 ).first \
 		    ||  self.create( techid: tech, workdate: date )
 	end
+
+	def past_hours
+		hours.reject {|t| Date.today.to_time + (((t.start.hour * 60)+t.start.min) *60) > Time.now }
+	end
 end
