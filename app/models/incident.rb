@@ -11,6 +11,7 @@ class Incident < Sequel::Model(Desk::DataSource.cdesk[:incidents].select(:id, :c
 		['Title', 'Customer', 'Contact', 'problem Code', 'Problem Description', 'solution code', 'Solution Description', 'Status', 'Opened Date'].each do |attribute|
 			self[attribute.to_sym] = params[attribute] if params[attribute]
 		end
+		self['Source'] = 'Mobile'
 		if params['Assigned To'].to_i > 0
 			self['Assigned To'] = params['Assigned To']
 		else
