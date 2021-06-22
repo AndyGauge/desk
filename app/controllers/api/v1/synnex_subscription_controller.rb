@@ -19,7 +19,6 @@ module Api
         description += "#{status} \n"
         @subscription.query_and_update
         description += "after: #{@subscription.to_log}"
-        byebug
         Cdesk::Log.create(source: 'Synnex API',
                           description: description,
                           userid: User.authenticate_by_jwt(params[:jwt]).employee.id,
