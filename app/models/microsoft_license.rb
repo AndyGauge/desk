@@ -1,7 +1,7 @@
-class MicrosoftLicense < Sequel::Model(Desk::DataSource.cdesk[:microsoft_licenses].select(:id, :synnex_id, :service_name, :sku, :quantity, :status, :price, :msrp, :customer_id, :id))
+class MicrosoftLicense < Sequel::Model(Desk::DataSource.cdesk[:microsoft_licenses].select(:id, :synnex_id, :service_name, :sku, :quantity, :status, :price, :msrp, :customer_id))
 	include SynnexApi
   set_primary_key :id
-  one_to_many :customer, key: :customer_id
+  many_to_one :customer, key: :customer_id
 
   def adjust_quantity(qty)
     msp.find_subscription(synnex_id).change_quantity(qty.to_i)
@@ -17,5 +17,9 @@ class MicrosoftLicense < Sequel::Model(Desk::DataSource.cdesk[:microsoft_license
         price:        subscription.price,
         msrp:         subscription.msrp
     )
+  end
+
+  def to_log
+    format("%{synnex_id} (%{service_name}) %{quantity}@$%<price>.2f",self)
   end
 end
