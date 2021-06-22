@@ -16,10 +16,14 @@ module Api
         @subscription = MicrosoftLicense.find(synnex_id: params[:id])
         description = "before: #{@subscription.to_log}\n"
         status = @subscription.adjust_quantity(params[:qty])
-        description += status + '\n'
+        description += "#{status} \n"
         @subscription.query_and_update
         description += "after: #{@subscription.to_log}"
-        Cdesk::Log.create(source: 'Synnex API', description: description, userid: @current_user.employee.id, customerid: @subscription.customer.id)
+        byebug
+        Cdesk::Log.create(source: 'Synnex API',
+                          description: description,
+                          userid: User.authenticate_by_jwt(params[:jwt]).employee.id,
+                          customerid: @subscription.customer.id)
         render json: {status: status}
       end
     end
