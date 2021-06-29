@@ -1,0 +1,4 @@
+schedule:
+  broadcast_alerts_job:
+    cron: '0 * * * * *'
+    class: BroadcastAlertsJob

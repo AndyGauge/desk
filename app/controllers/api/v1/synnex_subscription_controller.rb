@@ -14,9 +14,9 @@ module Api
           render json: {error: "No Quantity provided"} and return
         end
         @subscription = MicrosoftLicense.find(synnex_id: params[:id])
-        description = "before: #{@subscription.to_log}\n"
+        description = "before: #{@subscription.to_log}\r\n"
         status = @subscription.adjust_quantity(params[:qty])
-        description += "#{status} \n"
+        description += "#{(status == true) ? 'Success' : status} \r\n"
         @subscription.query_and_update
         description += "after: #{@subscription.to_log}"
         Cdesk::Log.create(source: 'Synnex API',

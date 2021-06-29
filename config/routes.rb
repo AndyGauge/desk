@@ -20,6 +20,7 @@ Rails.application.routes.draw do
   resources :connections
   resources :contacts
   resources :workorders
+  resources :alerts
 	devise_for :users do
 		get 'sign_out' => 'devise/sessions#destroy'
   end
@@ -27,10 +28,12 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :synnex
       resources :synnex_subscription
+      namespace :kaseya do
+        resources :alerts
+      end
     end
   end
-
-
+  mount ActionCable.server => '/cable'
 
   root 'hours#index'
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
