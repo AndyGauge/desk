@@ -6,7 +6,7 @@ class RemoveKaseyaAlertJob < ApplicationJob
 
   def perform(*args)
     args.each do |alert_id|
-      KaseyaAlert.remove(alert_id)
+      vsa.alarms.close(alert_id)
     end
 
   end

@@ -29,7 +29,9 @@ Rails.application.routes.draw do
       resources :synnex
       resources :synnex_subscription
       namespace :kaseya do
-        resources :alerts
+        resources :alerts do
+          delete :agent
+        end
       end
     end
   end

@@ -5,7 +5,7 @@ module Api
         include KaseyaApi
 
         def index
-          render json: KaseyaAlert.new.agent_alerts
+          render json: KaseyaAlert.new.process_alerts
         end
         def new
           render json: vsa.alarms.new_alarms.to_json
@@ -14,7 +14,16 @@ module Api
           render json:vsa.logs.alarms_by_agent(params[:id]).to_json
         end
         def destroy
-          render json: vsa.alarms.close(params[:id]).to_json
+          if params[:machine_group] && params[:agent]
+            count = KaseyaAlert.new.process_alerts[params[:machine_group]][params[:agent]]
+                        .collect { |alert| RemoveKaseyaAlertJob.perform_later alert[:alarm_id]}.count
+            render json: {status: "ok", count: count}
+          else
+            render json: vsa.alarms.close(params[:id]).to_json
+          end
+        end
+        def agent
+
         end
         def create
           title = "Monitoring: " + JSON.parse(params[:alarm])["Event"]
