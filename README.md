@@ -1,24 +1,8 @@
-# README
+# Starting the server
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+### Redis
+Requires redis for `ActionCable` should sit at `:6379`, see `cable.yml`
 
-Things you may want to cover:
+### Sidekiq
+Sidekiq checks for new alerts and sends them to the websockets
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...

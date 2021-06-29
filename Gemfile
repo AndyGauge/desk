@@ -26,13 +26,18 @@ gem 'jbuilder', '~> 2.7'
 # Devise based, two factor LDAP authentication
 gem 'dotenv-rails'
 gem 'devise'
-gem "devise_ldap_authenticatable"
+gem 'devise_ldap_authenticatable'
 gem 'net-ldap'
 gem 'two_factor_authentication'
 gem 'sequel'
 gem 'simple_calendar'
 gem 'synnex'
 
+gem 'kaseya', git: 'https://github.com/AndyGauge/kaseya-ruby'
+
+gem 'redis'
+gem 'sidekiq'
+gem 'sidekiq-scheduler'
 #Connect to MSSQL
 gem 'tiny_tds'
 
