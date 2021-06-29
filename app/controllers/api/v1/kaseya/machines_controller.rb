@@ -1,7 +1,7 @@
 module Api
   module V1
     module Kaseya
-      class AlertsController < ApiV1Controller
+      class MachinesController < ApiV1Controller
         include KaseyaApi
 
         def show
