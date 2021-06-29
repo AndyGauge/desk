@@ -5,7 +5,7 @@ module Api
         include KaseyaApi
 
         def show
-          render json:Machine.find(agentguid: )
+          render json: Machine.find(agentguid: params[:id])
         end
       end
     end

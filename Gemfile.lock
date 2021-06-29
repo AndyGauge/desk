@@ -1,5 +1,6 @@
-PATH
-  remote: ../kaseya-ruby
+GIT
+  remote: https://github.com/AndyGauge/kaseya-ruby
+  revision: bc2c4a1b7c4e5d1c5f4a99a5300b9ca71d9d8aba
   specs:
     kaseya (0.2.3)
       activesupport (>= 5.0)
