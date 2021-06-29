@@ -26,18 +26,18 @@ module Api
 
         end
         def create
-          title = "Monitoring: " + JSON.parse(params[:alarm])["Event"]
-          machine_group = JSON.parse(params[:alerts]).first['MachineGroup'].split('.').last
-          customer = Customer.find(kaseyaname: machine_group)
+          customer = Customer.find(kaseyaname: params[:machine_group].split('.').last)
           incident = Incident.new
-          incident['Title']= title
+          incident['Title']= JSON.parse(params[:alarm])["Event"]
           incident['Opened Date']= Time.now
           incident['Customer']= customer.id
           incident['problem Code']='Monitoring'
           incident['Problem Description']='Agent Monitoring Alarm'
           incident['Status']= 'Active'
-          incident['Source']= 'Mobile'
+          incident['Source']= 'Monitoring'
+          incident['Machine']= params[:guid]
           incident['Assigned To']=Incident::UNASSIGNED
+          incident['Internal Comments']=params[:alarm]
           incident.save
         end
       end

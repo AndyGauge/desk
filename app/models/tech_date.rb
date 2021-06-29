@@ -8,6 +8,6 @@ class TechDate < Sequel::Model("Tech Header".to_sym)
 	end
 
 	def past_hours
-		hours.reject {|t| Date.today.to_time + (((t.start.hour * 60)+t.start.min) *60) > Time.now }
+		hours.reject {|t| t.start && Date.today.to_time + (((t.start.hour * 60)+t.start.min) *60) > Time.now }
 	end
 end

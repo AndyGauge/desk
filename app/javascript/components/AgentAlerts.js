@@ -17,6 +17,8 @@ class AgentAlert extends Component {
             agent_name: '',
             alarm_log: [],
             kaseya_alerts: [],
+            alerts: [],
+            machine_group: '',
         };
     }
     componentDidMount() {
@@ -54,10 +56,16 @@ class AgentAlert extends Component {
                 throw error;
             });
     }
-    agentClick = (agent_guid, agent_name) => {
+    agentClick = (agent_guid, agent_name, machine_group) => {
         fetch('/api/v1/kaseya/alerts/' + agent_guid + '?jwt=' + this.props.jwt, {signal: this.fetchController.signal})
             .then(response => response.json())
-            .then(alarm_log => this.setState({alarm_log: alarm_log.results.sort((a,b) => new Date(b.Time) - new Date(a.Time)).slice(0,5)}))
+            .then(alarm_log => this.setState(
+                {
+                    alarm_log:     alarm_log.results.sort((a,b) => new Date(b.Time) - new Date(a.Time)).slice(0,5),
+                    alerts:        [...this.state.kaseya_alerts[machine_group][agent_name]],
+                    machine_group: machine_group,
+                    agent_name:    agent_name,
+                }))
             .catch(error => {
                 if (error.name === 'AbortError') return;
                 throw error;
@@ -77,7 +85,8 @@ class AgentAlert extends Component {
         formData.append('jwt', this.props.jwt)
         formData.append('alarm', JSON.stringify(this.state.alarm_log[0]))
         formData.append('guid', this.state.agent_guid)
-        formData.append('alerts', JSON.stringify(this.state.agent_alerts.filter((v,a,i) => v.AgentId == this.state.agent_guid)))
+        formData.append('alerts', JSON.stringify(this.state.alerts))
+        formData.append('machine_group', this.state.machine_group)
         fetch('/api/v1/kaseya/alerts', {method: 'POST', body: formData, signal: this.fetchController.signal})
             .then(response => response.json())
             .catch(error => {
@@ -87,17 +96,12 @@ class AgentAlert extends Component {
     }
 
     render() {
- 
         return (
             <ActionCableProvider url={API_WS_ROOT}>
-                {/*<Row>*/}
-                {/*    {alerts_by_agent.length > 0 ? alerts_by_agent : alerts}*/}
-                {/*</Row>*/}
                 <ActionCable
                     channel={{channel: 'AlertsChannel'}}
                     onReceived={this.handleReceivedAlert}
                 >
-
                 </ActionCable>
 
                 <Row>
@@ -111,7 +115,7 @@ class AgentAlert extends Component {
                                             onClose={() => this.removeAgent(machine_group,agent)}
                                         >
                                             <Alert.Heading>{agent}</Alert.Heading>
-                                            <ul onClick={() => this.agentClick(this.state.kaseya_alerts[machine_group][agent][0].agent, agent)}>
+                                            <ul onClick={() => this.agentClick(this.state.kaseya_alerts[machine_group][agent][0].agent, agent, machine_group)}>
                                                 {this.state.kaseya_alerts[machine_group][agent].map((alert, key) =>
                                                     <li key={alert.alarm_id} style={key > 0 ? {display: "none"} : null}>
                                                         {alert.subject}
@@ -148,8 +152,30 @@ class AgentAlert extends Component {
                         )}
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button onClick={this.createTicket}>Create Ticket</Button>
-                        <Button onClick={this.closeModal}>Dismiss</Button>
+                        <Button
+                            onClick={this.createTicket}
+                        >
+                            Create Ticket
+                        </Button>
+                        <Button href={'kaseyaliveconnect://'+ btoa(`{
+                            "homePageUrl": "https://propak.ccmaint.com/liveconnect/",
+                            "payload": {
+                                "agentId": "${this.state.agent_guid}",
+                                "navId": "dashboard"
+                            }
+                        }`)}>
+                            LiveConnect
+                        </Button>
+                        <Button
+                            onClick={() => this.removeAgent(this.state.machine_group, this.state.agent_name)}
+                        >
+                            Close Alarm
+                        </Button>
+                        <Button
+                            onClick={this.closeModal}
+                        >
+                            Exit Dialog
+                        </Button>
                     </Modal.Footer>
                 </Modal>
 

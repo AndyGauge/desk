@@ -32,6 +32,7 @@ Rails.application.routes.draw do
         resources :alerts do
           delete :agent
         end
+        resource :machine
       end
     end
   end
