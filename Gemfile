@@ -33,7 +33,7 @@ gem 'sequel'
 gem 'simple_calendar'
 gem 'synnex'
 
-gem 'kaseya', path: '../kaseya-ruby/'
+gem 'kaseya', git: 'https://github.com/AndyGauge/kaseya-ruby'
 
 gem 'redis'
 gem 'sidekiq'
