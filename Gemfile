@@ -1,8 +1,9 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-# Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 6.0.1'
+# Bundle edge Rails instead:
+gem 'rails', github: 'rails/rails', branch: :main
+#`gem 'rails', '~> 6.0.1'
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3', '~> 1.4'
 # Use Puma as the app server
@@ -25,7 +26,7 @@ gem 'jbuilder', '~> 2.7'
 
 # Devise based, two factor LDAP authentication
 gem 'dotenv-rails'
-gem 'devise'
+gem 'devise', github: 'ghiculescu/devise', branch: 'patch-2'
 gem 'devise_ldap_authenticatable'
 gem 'net-ldap'
 gem 'two_factor_authentication'
