@@ -5,6 +5,6 @@ class BroadcastAlertsJob < ApplicationJob
   include KaseyaApi
 
   def perform(*args)
-    ActionCable.server.broadcast 'alerts_channel', message: {kaseya_alerts: KaseyaAlert.new.process_alerts}
+    ActionCable.server.broadcast 'alerts_channel', {message: {kaseya_alerts: KaseyaAlert.new.process_alerts}}
   end
 end
