@@ -169,7 +169,7 @@ class AgentAlert extends Component {
                         <Button
                             onClick={() => this.removeAgent(this.state.machine_group, this.state.agent_name)}
                         >
-                            Close Alarm
+                            Delete Alert
                         </Button>
                         <Button
                             onClick={this.closeModal}
