@@ -19,6 +19,7 @@ class AgentAlert extends Component {
             kaseya_alerts: [],
             alerts: [],
             machine_group: '',
+            error_message: ''
         };
     }
     componentDidMount() {
@@ -33,13 +34,19 @@ class AgentAlert extends Component {
         const signal = this.fetchController.signal;
         fetch('/api/v1/kaseya/alerts?jwt=' + this.props.jwt, {signal})
             .then(response => response.json())
-            .then(kaseya_alerts => {
-                this.setState({kaseya_alerts})
-            })
+            .then(alerts => this.parseAlerts(alerts))
             .catch(error => {
                 if (error.name === 'AbortError') return;
                 throw error;
             });
+    }
+    parseAlerts = (json) => {
+        if (json.error) {
+            setTimeout(this.fetchAlerts, 15000)
+            this.setState({error_message: json.error})
+        } else {
+          this.setState({kaseya_alerts: json.kaseya_alerts})
+        }
     }
     removeAgent = (machinegroup, agent) => {
         const kaseya_alerts = this.state.kaseya_alerts
@@ -103,7 +110,7 @@ class AgentAlert extends Component {
                     onReceived={this.handleReceivedAlert}
                 >
                 </ActionCable>
-
+                {(this.state.error_message === '') ? <></> : <Alert variant={'danger'}>{this.state.error_message}... retrying every 15 seconds</Alert>}
                 <Row>
                     {Object.keys(this.state.kaseya_alerts).map((machine_group) =>
                         {return(

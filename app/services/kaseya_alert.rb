@@ -4,15 +4,25 @@ class KaseyaAlert
 
 
   def initialize
-    @alerts = vsa.alarms.all(filter: OPEN_ALERTS)
+    begin
+      @alerts = vsa.alarms.all(filter: OPEN_ALERTS)
+    rescue Exception => e
+      @alerts = []
+      @error = e
+    end
   end
 
   def process_alerts
-    agent_alerts.each do |machine_group, agents|
-      agents.each do |agent_name, alerts|
-        process(alerts)
+    if @error
+      { error: @error }
+    else
+      agent_alerts.each do |machine_group, agents|
+        agents.each do |agent_name, alerts|
+          process(alerts)
+        end
       end
     end
+
   end
 
   private
